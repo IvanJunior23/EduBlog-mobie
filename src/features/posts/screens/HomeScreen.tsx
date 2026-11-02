@@ -12,19 +12,16 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useAuth } from "@/context/AuthContext";
+import type { IPostFilters } from "@/interfaces/IPostFilters";
+import { formatSemester, getFilterOptions } from "@/utils/postUtils";
 import FeaturedCarousel from "../components/FeaturedCarousel";
 import PostCard from "../components/PostCard";
 import PostFilterChips from "../components/PostFilterChips";
 import PostsFeedback from "../components/PostsFeedback";
-import {
-  formatSemester,
-  getFilterOptions,
-  type PostFilters,
-} from "../postUtils";
 import { usePostDiscovery } from "../usePostDiscovery";
 
 export default function HomeScreen() {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const discovery = usePostDiscovery();
   const [filtersOpen, setFiltersOpen] = useState(false);
   const { posts, filters, results } = discovery;
@@ -39,7 +36,7 @@ export default function HomeScreen() {
     [posts],
   );
 
-  function changeFilter(field: keyof PostFilters, value: string) {
+  function changeFilter(field: keyof IPostFilters, value: string) {
     discovery.setFilters((current) => ({ ...current, [field]: value }));
   }
 
@@ -76,6 +73,24 @@ export default function HomeScreen() {
             </Pressable>
           </View>
         </View>
+        {user?.role === "PROFESSOR" ? (
+          <View style={styles.professorNavigation}>
+            <Link href="/professor/dashboard" asChild>
+              <Pressable
+                accessibilityRole="link"
+                accessibilityLabel="Abrir Painel do Professor"
+                style={({ pressed }) => [
+                  styles.professorLink,
+                  pressed && styles.professorLinkPressed,
+                ]}
+              >
+                <Ionicons name="school-outline" size={20} color="#0F766E" />
+                <Text style={styles.filterButtonText}>Painel do Professor</Text>
+                <Ionicons name="chevron-forward" size={16} color="#0F766E" />
+              </Pressable>
+            </Link>
+          </View>
+        ) : null}
       </View>
 
       <FlatList
@@ -127,15 +142,44 @@ export default function HomeScreen() {
 
             {!discovery.loading && !discovery.error ? (
               <>
-                <PostFilterChips
-                  label="Navegue por disciplinas"
-                  allLabel="Todas"
-                  options={discovery.disciplines.map(
-                    (discipline) => discipline.label,
-                  )}
-                  value={filters.discipline}
-                  onChange={(value) => changeFilter("discipline", value)}
-                />
+                {discovery.disciplinesLoading ? (
+                  <Text
+                    style={styles.catalogLoading}
+                    accessibilityLiveRegion="polite"
+                  >
+                    Carregando disciplinas...
+                  </Text>
+                ) : discovery.disciplinesError ? (
+                  <View
+                    style={styles.catalogWarning}
+                    accessibilityLiveRegion="polite"
+                  >
+                    <Text style={styles.catalogWarningText}>
+                      Não foi possível carregar as disciplinas. Tente novamente
+                      para navegar por disciplina.
+                    </Text>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel="Tentar carregar disciplinas novamente"
+                      onPress={discovery.retryDisciplines}
+                      style={styles.catalogRetry}
+                    >
+                      <Text style={styles.filterButtonText}>
+                        Tentar novamente
+                      </Text>
+                    </Pressable>
+                  </View>
+                ) : (
+                  <PostFilterChips
+                    label="Navegue por disciplinas"
+                    allLabel="Todas"
+                    options={discovery.disciplines.map(
+                      (discipline) => discipline.label,
+                    )}
+                    value={filters.discipline}
+                    onChange={(value) => changeFilter("discipline", value)}
+                  />
+                )}
 
                 <View style={styles.filterBar}>
                   <Pressable
@@ -307,6 +351,26 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   headerButtonText: { color: "#183153", fontSize: 14, fontWeight: "600" },
+  professorNavigation: {
+    width: "100%",
+    maxWidth: 900,
+    alignSelf: "center",
+    alignItems: "flex-start",
+    paddingHorizontal: 20,
+    paddingBottom: 12,
+  },
+  professorLink: {
+    minHeight: 44,
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: "#E8FAF6",
+  },
+  professorLinkPressed: { opacity: 0.7 },
   content: {
     width: "100%",
     maxWidth: 900,
@@ -354,6 +418,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     gap: 12,
+  },
+  catalogLoading: { color: "#64748B", fontSize: 13 },
+  catalogWarning: {
+    backgroundColor: "#FFF8E8",
+    borderWidth: 1,
+    borderColor: "#E8D2A5",
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingTop: 12,
+  },
+  catalogWarningText: { color: "#78491D", fontSize: 13, lineHeight: 20 },
+  catalogRetry: {
+    minHeight: 44,
+    alignSelf: "flex-start",
+    justifyContent: "center",
   },
   filterButton: {
     minHeight: 44,

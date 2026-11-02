@@ -2,12 +2,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 
-interface Props {
-  imageUrl?: string | null;
-  discipline: string;
-}
+import type { IPostCoverProps } from "@/interfaces/ui/IUiPosts";
 
-export default function PostCover({ imageUrl, discipline }: Props) {
+export default function PostCover({ imageUrl, discipline }: IPostCoverProps) {
   const [failedUrl, setFailedUrl] = useState<string>();
 
   if (imageUrl && failedUrl !== imageUrl) {

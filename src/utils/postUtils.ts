@@ -1,13 +1,7 @@
 import type { IPost } from "@/interfaces/IPost";
+import type { IPostFilters } from "@/interfaces/IPostFilters";
 
-export interface PostFilters {
-  discipline: string;
-  author: string;
-  series: string;
-  semester: string;
-}
-
-export const emptyPostFilters: PostFilters = {
+export const emptyPostFilters: IPostFilters = {
   discipline: "",
   author: "",
   series: "",
@@ -19,7 +13,7 @@ export function isPublishedPost(post: IPost): boolean {
   return post.status?.label?.trim().toLocaleLowerCase("pt-BR") === "publicado";
 }
 
-export function filterPosts(posts: IPost[], filters: PostFilters): IPost[] {
+export function filterPosts(posts: IPost[], filters: IPostFilters): IPost[] {
   // Reapply catalog filters: the API's in-memory search ignores these fields.
   return posts.filter(
     (post) =>

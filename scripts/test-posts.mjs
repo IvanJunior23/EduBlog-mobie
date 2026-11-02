@@ -7,7 +7,7 @@ import {
   getFilterOptions,
   isPublishedPost,
   sortPosts,
-} from "../src/features/posts/postUtils.ts";
+} from "../src/utils/postUtils.ts";
 import {
   getAllPosts,
   getPostById,

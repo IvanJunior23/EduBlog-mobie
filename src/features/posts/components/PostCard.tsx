@@ -2,11 +2,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import type { IPost } from "@/interfaces/IPost";
-import { formatPostDate } from "../postUtils";
+import type { IPostCardProps } from "@/interfaces/ui/IUiPosts";
+import { formatPostDate } from "@/utils/postUtils";
 import PostCover from "./PostCover";
 
-export default function PostCard({ post }: { post: IPost }) {
+export default function PostCard({ post }: IPostCardProps) {
   return (
     <Link href={{ pathname: "/posts/[id]", params: { id: post._id } }} asChild>
       <Pressable

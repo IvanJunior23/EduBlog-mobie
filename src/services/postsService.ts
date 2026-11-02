@@ -1,24 +1,16 @@
+import type { IApiResponse } from "../interfaces/IApi";
 import type { IPost } from "../interfaces/IPost";
-
-interface ApiResponse<T> {
-  data: T;
-}
-
-interface PostsRequest {
-  <T>(
-    path: string,
-    options?: {
-      method?: string;
-      signal?: AbortSignal;
-    },
-  ): Promise<T>;
-}
+import type {
+  IPostDiscipline,
+  IPostSearchParams,
+  IPostsRequest,
+} from "../interfaces/IPostsService";
 
 export async function getPosts(
-  request: PostsRequest,
+  request: IPostsRequest,
   signal?: AbortSignal,
 ): Promise<IPost[]> {
-  const response = await request<ApiResponse<IPost[]>>("/posts", {
+  const response = await request<IApiResponse<IPost[]>>("/posts", {
     method: "GET",
     signal,
   });
@@ -26,22 +18,9 @@ export async function getPosts(
   return response.data;
 }
 
-export interface PostSearchParams {
-  query?: string;
-  discipline?: string;
-  author?: string;
-}
-
-export interface PostDiscipline {
-  _id: string;
-  label: string;
-  order?: number;
-  isActive?: boolean;
-}
-
 export async function searchPosts(
-  request: PostsRequest,
-  filters: PostSearchParams,
+  request: IPostsRequest,
+  filters: IPostSearchParams,
   signal?: AbortSignal,
 ): Promise<IPost[]> {
   const params = new URLSearchParams();
@@ -52,7 +31,7 @@ export async function searchPosts(
 
   if (!params.size) return getPosts(request, signal);
 
-  const response = await request<ApiResponse<IPost[]>>(
+  const response = await request<IApiResponse<IPost[]>>(
     `/posts/search?${params.toString()}`,
     { method: "GET", signal },
   );
@@ -61,11 +40,11 @@ export async function searchPosts(
 }
 
 export async function getPostById(
-  request: PostsRequest,
+  request: IPostsRequest,
   id: string,
   signal?: AbortSignal,
 ): Promise<IPost> {
-  const response = await request<ApiResponse<IPost>>(
+  const response = await request<IApiResponse<IPost>>(
     `/posts/${encodeURIComponent(id)}`,
     { method: "GET", signal },
   );
@@ -74,10 +53,10 @@ export async function getPostById(
 }
 
 export async function getPostDisciplines(
-  request: PostsRequest,
+  request: IPostsRequest,
   signal?: AbortSignal,
-): Promise<PostDiscipline[]> {
-  const response = await request<ApiResponse<PostDiscipline[]>>(
+): Promise<IPostDiscipline[]> {
+  const response = await request<IApiResponse<IPostDiscipline[]>>(
     "/catalog/disciplines",
     { method: "GET", signal },
   );
@@ -87,8 +66,8 @@ export async function getPostDisciplines(
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 }
 
-export async function getAllPosts(request: PostsRequest): Promise<IPost[]> {
-  const response = await request<ApiResponse<IPost[]>>("/posts/all", {
+export async function getAllPosts(request: IPostsRequest): Promise<IPost[]> {
+  const response = await request<IApiResponse<IPost[]>>("/posts/all", {
     method: "GET",
   });
 

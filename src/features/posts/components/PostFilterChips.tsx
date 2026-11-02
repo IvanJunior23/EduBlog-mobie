@@ -1,13 +1,6 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
-interface Props {
-  label: string;
-  options: string[];
-  value: string;
-  onChange: (value: string) => void;
-  allLabel?: string;
-  formatLabel?: (value: string) => string;
-}
+import type { IPostFilterChipsProps } from "@/interfaces/ui/IUiPosts";
 
 export default function PostFilterChips({
   label,
@@ -16,7 +9,7 @@ export default function PostFilterChips({
   onChange,
   allLabel = "Todos",
   formatLabel,
-}: Props) {
+}: IPostFilterChipsProps) {
   return (
     <View style={styles.group}>
       <Text style={styles.label}>{label}</Text>

@@ -307,6 +307,26 @@ node --experimental-strip-types --test scripts/test-posts.mjs
 npx tsc --noEmit
 ```
 
+### Navegação por perfil
+
+A Home exibe o atalho **Painel do Professor** apenas para usuários com
+`user.role === "PROFESSOR"`. A rota `/professor` redireciona para
+`/professor/dashboard`, seguindo o caminho utilizado na versão web.
+
+O grupo de rotas `professor` é protegido com `Stack.Protected` no layout da área
+autenticada. Alunos não têm acesso a esse grupo, inclusive por link direto.
+As regras existentes de login e sessão foram preservadas.
+
+O painel contém uma tela-base com identificação do professor e retorno aos
+conteúdos. As funções de gestão de publicações serão implementadas pelo módulo
+responsável; não foram adicionadas operações de criação, edição ou exclusão.
+
+Para verificar a navegação por perfil:
+
+```bash
+node --test scripts/test-professor-navigation.mjs
+```
+
 ## Scripts disponíveis
 
 | Comando                | Descrição                                            |

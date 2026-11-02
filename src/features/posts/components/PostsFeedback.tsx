@@ -7,13 +7,7 @@ import {
   View,
 } from "react-native";
 
-interface Props {
-  loading?: boolean;
-  title: string;
-  message?: string;
-  actionLabel?: string;
-  onAction?: () => void;
-}
+import type { IPostsFeedbackProps } from "@/interfaces/ui/IUiPosts";
 
 export default function PostsFeedback({
   loading,
@@ -21,7 +15,7 @@ export default function PostsFeedback({
   message,
   actionLabel,
   onAction,
-}: Props) {
+}: IPostsFeedbackProps) {
   return (
     <View style={styles.container} accessibilityLiveRegion="polite">
       {loading ? (

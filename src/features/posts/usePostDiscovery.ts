@@ -2,11 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useApiClient } from "@/hooks/useApiClient";
 import type { IPost } from "@/interfaces/IPost";
+import type { IPostFilters } from "@/interfaces/IPostFilters";
+import type { IPostDiscipline } from "@/interfaces/IPostsService";
 import {
   getPostDisciplines,
   getPosts,
   searchPosts,
-  type PostDiscipline,
 } from "@/services/postsService";
 
 import {
@@ -14,22 +15,24 @@ import {
   filterPosts,
   isPublishedPost,
   sortPosts,
-  type PostFilters,
-} from "./postUtils";
+} from "@/utils/postUtils";
 
 export function usePostDiscovery() {
   const { request } = useApiClient();
   const [posts, setPosts] = useState<IPost[]>([]);
-  const [disciplines, setDisciplines] = useState<PostDiscipline[]>([]);
+  const [disciplines, setDisciplines] = useState<IPostDiscipline[]>([]);
+  const [disciplinesLoading, setDisciplinesLoading] = useState(true);
+  const [disciplinesError, setDisciplinesError] = useState(false);
   const [query, setQuery] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState<PostFilters>(emptyPostFilters);
+  const [filters, setFilters] = useState<IPostFilters>(emptyPostFilters);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [searchResults, setSearchResults] = useState<IPost[]>([]);
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState(false);
   const [revision, setRevision] = useState(0);
+  const [disciplinesRevision, setDisciplinesRevision] = useState(0);
   const [searchRevision, setSearchRevision] = useState(0);
 
   useEffect(() => {
@@ -42,16 +45,12 @@ export function usePostDiscovery() {
     setLoading(true);
     setError(false);
 
-    async function loadCatalog() {
+    async function loadPosts() {
       try {
-        const [postResponse, disciplineResponse] = await Promise.all([
-          getPosts(request, controller.signal),
-          getPostDisciplines(request, controller.signal),
-        ]);
+        const postResponse = await getPosts(request, controller.signal);
         if (controller.signal.aborted) return;
 
         setPosts(sortPosts(postResponse.filter(isPublishedPost)));
-        setDisciplines(disciplineResponse);
       } catch {
         if (!controller.signal.aborted) setError(true);
       } finally {
@@ -59,9 +58,29 @@ export function usePostDiscovery() {
       }
     }
 
-    void loadCatalog();
+    void loadPosts();
     return () => controller.abort();
   }, [request, revision]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setDisciplinesLoading(true);
+    setDisciplinesError(false);
+
+    async function loadDisciplines() {
+      try {
+        const response = await getPostDisciplines(request, controller.signal);
+        if (!controller.signal.aborted) setDisciplines(response);
+      } catch {
+        if (!controller.signal.aborted) setDisciplinesError(true);
+      } finally {
+        if (!controller.signal.aborted) setDisciplinesLoading(false);
+      }
+    }
+
+    void loadDisciplines();
+    return () => controller.abort();
+  }, [request, disciplinesRevision]);
 
   const hasServerFilters = !!(
     searchQuery ||
@@ -135,6 +154,8 @@ export function usePostDiscovery() {
   return {
     posts,
     disciplines,
+    disciplinesLoading,
+    disciplinesError,
     query,
     setQuery,
     filters,
@@ -149,6 +170,7 @@ export function usePostDiscovery() {
     hasCriteria,
     clearFilters,
     reload: () => setRevision((value) => value + 1),
+    retryDisciplines: () => setDisciplinesRevision((value) => value + 1),
     retrySearch: () => setSearchRevision((value) => value + 1),
   };
 }

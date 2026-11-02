@@ -2,10 +2,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRef, useState, type ComponentRef } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
-import type { IPost } from "@/interfaces/IPost";
+import type { IFeaturedCarouselProps } from "@/interfaces/ui/IUiPosts";
 import PostCard from "./PostCard";
 
-export default function FeaturedCarousel({ posts }: { posts: IPost[] }) {
+export default function FeaturedCarousel({ posts }: IFeaturedCarouselProps) {
   const scroll = useRef<ComponentRef<typeof ScrollView>>(null);
   const [width, setWidth] = useState(0);
   const [index, setIndex] = useState(0);

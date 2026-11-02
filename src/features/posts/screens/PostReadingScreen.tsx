@@ -6,19 +6,18 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useApiClient } from "@/hooks/useApiClient";
 import type { IPost } from "@/interfaces/IPost";
+import type { IPostInformationProps } from "@/interfaces/ui/IUiPosts";
 import { ApiError } from "@/services/apiClient";
 import { getPostById } from "@/services/postsService";
 import PostCover from "../components/PostCover";
 import PostsFeedback from "../components/PostsFeedback";
-import { formatPostDate, formatSemester, isPublishedPost } from "../postUtils";
+import {
+  formatPostDate,
+  formatSemester,
+  isPublishedPost,
+} from "@/utils/postUtils";
 
-function PostInformation({
-  label,
-  value,
-}: {
-  label: string;
-  value?: string | null;
-}) {
+function PostInformation({ label, value }: IPostInformationProps) {
   return (
     <View style={styles.information}>
       <Text style={styles.informationLabel}>{label}</Text>
