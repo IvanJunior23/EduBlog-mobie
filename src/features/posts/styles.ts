@@ -95,8 +95,14 @@ export const teacherDashboardStyles = StyleSheet.create({
     fontWeight: "800",
   },
   actions: {
+    gap: 10,
+  },
+  actionsRow: {
     flexDirection: "row",
     gap: 10,
+  },
+  actionCell: {
+    flex: 1,
   },
   sectionHeading: {
     flexDirection: "row",
@@ -180,6 +186,11 @@ export const teacherPostsStyles = StyleSheet.create({
   },
   header: {
     gap: 14,
+  },
+  backLink: {
+    color: colors.teal,
+    fontSize: 14,
+    fontWeight: "700",
   },
   filters: {
     gap: 12,

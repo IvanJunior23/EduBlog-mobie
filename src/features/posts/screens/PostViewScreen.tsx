@@ -80,7 +80,7 @@ export default function PostViewScreen() {
           label="Voltar"
           onPress={() => {
             if (user?.role === "PROFESSOR") {
-              router.dismissTo("/teacher/posts" as Href);
+              router.dismissTo("/teatcher/posts" as Href);
               return;
             }
 
@@ -104,7 +104,7 @@ export default function PostViewScreen() {
       {user?.role === "PROFESSOR" ? (
         <Pressable
           accessibilityRole="button"
-          onPress={() => router.dismissTo("/teacher" as Href)}
+          onPress={() => router.dismissTo("/teatcher/dashboard" as Href)}
         >
           <Text style={styles.backLink}>← Voltar ao painel do professor</Text>
         </Pressable>
@@ -161,7 +161,7 @@ export default function PostViewScreen() {
           <Text style={commonStyles.subtitle}>Status atual: {post.status.label}</Text>
           <ActionButton
             label="Editar publicação"
-            onPress={() => router.push(`/teacher/posts/${post._id}/edit` as Href)}
+            onPress={() => router.push(`/teatcher/posts/${post._id}/edit` as Href)}
           />
         </View>
       ) : null}

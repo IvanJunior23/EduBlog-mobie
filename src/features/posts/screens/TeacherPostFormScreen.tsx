@@ -10,6 +10,10 @@ import {
 } from "@/features/posts/styles";
 import {
   emptyPostValues,
+  formatSemesterForApi,
+  formatSeriesForApi,
+  normalizeSemesterInput,
+  normalizeSeriesInput,
   plainText,
   validatePost,
   type FieldErrors,
@@ -102,8 +106,8 @@ export default function TeacherPostFormScreen() {
                 content: post.content,
                 disciplineId: post.discipline._id,
                 statusId: post.status._id,
-                semester: post.semester ?? "",
-                series: post.series ?? "",
+                semester: normalizeSemesterInput(post.semester ?? ""),
+                series: normalizeSeriesInput(post.series ?? ""),
                 imageUrl: post.imageUrl ?? "",
                 isFeatured: post.isFeatured ?? false,
               }
@@ -163,8 +167,8 @@ export default function TeacherPostFormScreen() {
       title: plainText(values.title),
       summary: plainText(values.summary),
       content: plainText(values.content),
-      semester: values.semester.trim(),
-      series: values.series.trim(),
+      semester: formatSemesterForApi(values.semester),
+      series: formatSeriesForApi(values.series),
       imageUrl: values.imageUrl.trim(),
     };
 
@@ -178,7 +182,7 @@ export default function TeacherPostFormScreen() {
       }
 
       showSuccess(postId ? "Post atualizado com sucesso." : "Post criado com sucesso.");
-      router.dismissTo("/teacher/posts" as Href);
+      router.dismissTo("/teatcher/posts" as Href);
     } catch (error: unknown) {
       setSaveError(
         getRequestError(
@@ -203,7 +207,7 @@ export default function TeacherPostFormScreen() {
         <Text style={styles.errorText}>{loadError}</Text>
         <ActionButton
           label="Voltar para meus posts"
-          onPress={() => router.dismissTo("/teacher/posts" as Href)}
+          onPress={() => router.dismissTo("/teatcher/posts" as Href)}
           variant="secondary"
         />
       </View>
@@ -311,15 +315,50 @@ export default function TeacherPostFormScreen() {
           <FormInput
             error={errors.semester}
             label="Semestre *"
-            onChangeText={(text) => changeField("semester", text)}
-            placeholder="Ex.: 1"
+            keyboardType="number-pad"
+            maxLength={1}
+            onChangeText={(text) => {
+              const digits = text.replace(/\D/g, "");
+
+              if (!digits) {
+                changeField("semester", "");
+                return;
+              }
+
+              const numeric = Number.parseInt(digits, 10);
+              changeField(
+                "semester",
+                Number.isInteger(numeric) && numeric >= 1 && numeric <= 4
+                  ? String(numeric)
+                  : "",
+              );
+            }}
+            placeholder="Digite um número de 1 a 4"
             value={values.semester}
           />
 
           <FormInput
+            error={errors.series}
+            keyboardType="number-pad"
             label="Série / Ano (opcional)"
-            onChangeText={(text) => changeField("series", text)}
-            placeholder="Ex.: 1º ano do Ensino Médio"
+            maxLength={1}
+            onChangeText={(text) => {
+              const digits = text.replace(/\D/g, "");
+
+              if (!digits) {
+                changeField("series", "");
+                return;
+              }
+
+              const numeric = Number.parseInt(digits, 10);
+              changeField(
+                "series",
+                Number.isInteger(numeric) && numeric >= 1 && numeric <= 9
+                  ? String(numeric)
+                  : "",
+              );
+            }}
+            placeholder="Digite um número de 1 a 9"
             value={values.series}
           />
 
@@ -356,7 +395,7 @@ export default function TeacherPostFormScreen() {
           <View style={styles.buttons}>
             <ActionButton
               label="Cancelar"
-              onPress={() => router.dismissTo("/teacher/posts" as Href)}
+              onPress={() => router.dismissTo("/teatcher/posts" as Href)}
               variant="secondary"
             />
             <ActionButton
@@ -390,7 +429,7 @@ function FormInput({
   multiline?: boolean;
   maxLength?: number;
   placeholder?: string;
-  keyboardType?: "default" | "url";
+  keyboardType?: "default" | "url" | "number-pad";
   autoCapitalize?: "none" | "sentences";
 }) {
   return (

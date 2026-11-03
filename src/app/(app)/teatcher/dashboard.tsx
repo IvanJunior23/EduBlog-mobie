@@ -1,5 +1,5 @@
 import TeacherDashboardScreen from "@/features/posts/screens/TeacherDashboardScreen";
 
-export default function TeacherDashboardRoute() {
+export default function TeatcherDashboardRoute() {
   return <TeacherDashboardScreen />;
 }

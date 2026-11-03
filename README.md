@@ -274,6 +274,59 @@ Se uma verificação identificar uma incompatibilidade, analise a mensagem antes
 
 ---
 
+## Consulta e leitura de conteúdos
+
+A página inicial reúne listagem, cards, pesquisa, navegação por disciplinas e
+filtros de autor, série/ano e semestre. Os posts marcados com `isFeatured` aparecem
+em um carrossel. Ao abrir um card, a tela de leitura apresenta título, autor,
+disciplina, classificação, semestre, série/ano, data e conteúdo completo.
+
+Esse módulo fica em `src/features/posts`, com as rotas em `src/app/(app)` e as
+consultas em `src/services/postsService.ts`. A regra de login existente foi mantida.
+
+- `GET /posts`: catálogo de conteúdos e opções dos filtros;
+- `GET /posts/search?q=...&discipline=...&author=...`: pesquisa e filtros na API;
+- `GET /posts/:id`: leitura de uma publicação;
+- `GET /catalog/disciplines`: navegação por disciplinas, inclusive sem publicações.
+
+Série/ano e semestre são filtrados no aplicativo. As telas de consulta e leitura
+exibem apenas posts com `status.label` igual a `Publicado`, incluindo os destaques.
+A classificação exibida corresponde a `status.label`, o campo disponível no
+contrato atual. Comentários não foram adicionados, pois são opcionais e não há
+uma implementação existente.
+
+A API configurada em `EXPO_PUBLIC_API_URL` deve oferecer os endpoints acima. A
+API de produção indicada neste README oferece `/posts/search`. Versões anteriores
+do backend podem não definir essa rota; confirme sua disponibilidade ao usar uma
+API local. O termo pesquisado segue o comportamento de acentuação da API.
+
+Para verificar o módulo, sem adicionar dependências de testes:
+
+```bash
+node --experimental-strip-types --test scripts/test-posts.mjs
+npx tsc --noEmit
+```
+
+### Navegação por perfil
+
+A Home exibe o atalho **Painel do Professor** apenas para usuários com
+`user.role === "PROFESSOR"`. A rota `/professor` redireciona para
+`/professor/dashboard`, seguindo o caminho utilizado na versão web.
+
+O grupo de rotas `professor` é protegido com `Stack.Protected` no layout da área
+autenticada. Alunos não têm acesso a esse grupo, inclusive por link direto.
+As regras existentes de login e sessão foram preservadas.
+
+O painel contém uma tela-base com identificação do professor e retorno aos
+conteúdos. As funções de gestão de publicações serão implementadas pelo módulo
+responsável; não foram adicionadas operações de criação, edição ou exclusão.
+
+Para verificar a navegação por perfil:
+
+```bash
+node --test scripts/test-professor-navigation.mjs
+```
+
 ## Scripts disponíveis
 
 | Comando                | Descrição                                            |

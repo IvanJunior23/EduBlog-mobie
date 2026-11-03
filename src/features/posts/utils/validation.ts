@@ -23,6 +23,78 @@ export function plainText(value: string) {
     .trim();
 }
 
+function parseIntegerInRange(
+  value: string,
+  min: number,
+  max: number,
+): number | null {
+  const trimmed = value.trim();
+
+  if (!/^\d+$/.test(trimmed)) {
+    return null;
+  }
+
+  const numeric = Number.parseInt(trimmed, 10);
+
+  if (!Number.isInteger(numeric) || numeric < min || numeric > max) {
+    return null;
+  }
+
+  return numeric;
+}
+
+export function parseSemesterNumber(value: string): number | null {
+  return parseIntegerInRange(value, 1, 4);
+}
+
+export function parseSeriesNumber(value: string): number | null {
+  if (!value.trim()) {
+    return null;
+  }
+
+  return parseIntegerInRange(value, 1, 9);
+}
+
+export function normalizeSemesterInput(value: string): string {
+  const match = value.match(/\d+/);
+
+  if (!match) {
+    return "";
+  }
+
+  const numeric = parseSemesterNumber(match[0]);
+
+  return numeric === null ? "" : String(numeric);
+}
+
+export function normalizeSeriesInput(value: string): string {
+  const match = value.match(/\d+/);
+
+  if (!match) {
+    return "";
+  }
+
+  const numeric = parseSeriesNumber(match[0]);
+
+  return numeric === null ? "" : String(numeric);
+}
+
+export function formatSemesterForApi(value: string): string {
+  const numeric = parseSemesterNumber(normalizeSemesterInput(value));
+
+  return numeric === null ? value.trim() : String(numeric);
+}
+
+export function formatSeriesForApi(value: string): string {
+  const numeric = parseSeriesNumber(normalizeSeriesInput(value));
+
+  if (numeric === null) {
+    return value.trim();
+  }
+
+  return `${numeric}º ano`;
+}
+
 export function validatePost(
   values: IPostValues,
   disciplines: { _id: string; isActive: boolean }[],
@@ -44,8 +116,12 @@ export function validatePost(
     errors.content = "Escreva um conteúdo com pelo menos 10 caracteres.";
   }
 
-  if (!values.semester.trim()) {
-    errors.semester = "Informe o semestre letivo.";
+  if (parseSemesterNumber(values.semester) === null) {
+    errors.semester = "Informe um semestre inteiro entre 1 e 4.";
+  }
+
+  if (values.series.trim() && parseSeriesNumber(values.series) === null) {
+    errors.series = "Informe um ano inteiro entre 1 e 9.";
   }
 
   if (

@@ -59,13 +59,19 @@ export default function TeacherPostsScreen() {
   }, [request, showError]);
 
   useEffect(() => {
-    void loadPosts();
+    const timer = setTimeout(() => {
+      void loadPosts();
+    }, 0);
+
+    return () => {
+      clearTimeout(timer);
+    };
   }, [loadPosts]);
 
   const disciplines = useMemo(
     () =>
-      Array.from(new Set(posts.map((post) => post.discipline.label))).sort((a, b) =>
-        a.localeCompare(b, "pt-BR"),
+      Array.from(new Set(posts.map((post) => post.discipline.label))).sort(
+        (a, b) => a.localeCompare(b, "pt-BR"),
       ),
     [posts],
   );
@@ -82,17 +88,6 @@ export default function TeacherPostsScreen() {
       ),
     [discipline, posts, search, status, user?.email, user?.id],
   );
-
-  const confirmDelete = useCallback((post: IPost) => {
-    Alert.alert("Excluir post", `Tem certeza que deseja excluir "${post.title}"?`, [
-      { text: "Cancelar", style: "cancel" },
-      {
-        text: "Excluir",
-        style: "destructive",
-        onPress: () => void handleDelete(post),
-      },
-    ]);
-  }, []);
 
   const handleDelete = useCallback(
     async (post: IPost) => {
@@ -121,6 +116,24 @@ export default function TeacherPostsScreen() {
     [request, showError, showSuccess],
   );
 
+  const confirmDelete = useCallback(
+    (post: IPost) => {
+      Alert.alert(
+        "Excluir post",
+        `Tem certeza que deseja excluir "${post.title}"?`,
+        [
+          { text: "Cancelar", style: "cancel" },
+          {
+            text: "Excluir",
+            style: "destructive",
+            onPress: () => void handleDelete(post),
+          },
+        ],
+      );
+    },
+    [handleDelete],
+  );
+
   if (loading) {
     return <LoadingState message="Carregando seus posts..." />;
   }
@@ -143,9 +156,15 @@ export default function TeacherPostsScreen() {
         ListHeaderComponent={
           <View style={styles.header}>
             <Text style={commonStyles.title}>Meus Posts</Text>
+            <Pressable
+              accessibilityRole="link"
+              onPress={() => router.dismissTo("/teatcher/dashboard" as Href)}
+            >
+              <Text style={styles.backLink}>← Voltar ao Dashboard</Text>
+            </Pressable>
             <ActionButton
               label="Novo post"
-              onPress={() => router.push("/teacher/posts/new" as Href)}
+              onPress={() => router.push("/teatcher/posts/new" as Href)}
             />
             {error ? (
               <View style={styles.errorBox}>
@@ -221,8 +240,10 @@ export default function TeacherPostsScreen() {
         renderItem={({ item }) => (
           <PostCard
             onDelete={() => confirmDelete(item)}
-            onEdit={() => router.push(`/teacher/posts/${item._id}/edit` as Href)}
-            onView={() => router.push(`/posts/${item._id}` as Href)}
+            onEdit={() =>
+              router.push(`/teatcher/posts/${item._id}/edit` as Href)
+            }
+            onView={() => router.push(`/teatcher/posts/${item._id}` as Href)}
             post={item}
           />
         )}

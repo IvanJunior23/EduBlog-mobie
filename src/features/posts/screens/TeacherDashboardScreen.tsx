@@ -46,7 +46,13 @@ export default function TeacherDashboardScreen() {
   }, [request, showError, user?.email, user?.id]);
 
   useEffect(() => {
-    void loadPosts();
+    const timer = setTimeout(() => {
+      void loadPosts();
+    }, 0);
+
+    return () => {
+      clearTimeout(timer);
+    };
   }, [loadPosts]);
 
   const publishedCount = useMemo(
@@ -124,21 +130,44 @@ export default function TeacherDashboardScreen() {
           </View>
 
           <View style={styles.actions}>
-            <ActionButton
-              label="Meus posts"
-              onPress={() => router.push("/teacher/posts" as Href)}
-              variant="secondary"
-            />
-            <ActionButton
-              label="Criar post"
-              onPress={() => router.push("/teacher/posts/new" as Href)}
-            />
+            <View style={styles.actionsRow}>
+              <View style={styles.actionCell}>
+                <ActionButton
+                  label="Meus posts"
+                  onPress={() => router.push("/teatcher/posts" as Href)}
+                  variant="secondary"
+                />
+              </View>
+              <View style={styles.actionCell}>
+                <ActionButton
+                  label="Painel Administrativo"
+                  onPress={() => showError("Painel administrativo em desenvolvimento.")}
+                  labelStyle={{ textAlign: "center" }}
+                  variant="secondary"
+                />
+              </View>
+            </View>
+            <View style={styles.actionsRow}>
+              <View style={styles.actionCell}>
+                <ActionButton
+                  label="Criar post"
+                  onPress={() => router.push("/teatcher/posts/new" as Href)}
+                />
+              </View>
+              <View style={styles.actionCell}>
+                <ActionButton
+                  label="Voltar para Home"
+                  onPress={() => router.dismissTo("/" as Href)}
+                  variant="secondary"
+                />
+              </View>
+            </View>
           </View>
 
           <View style={styles.sectionHeading}>
             <Text style={styles.sectionTitle}>Últimos posts</Text>
 
-            <Pressable onPress={() => router.push("/teacher/posts" as Href)}>
+            <Pressable onPress={() => router.push("/teatcher/posts" as Href)}>
               <Text style={styles.link}>Ver todos</Text>
             </Pressable>
           </View>
@@ -148,7 +177,7 @@ export default function TeacherDashboardScreen() {
               <Pressable
                 accessibilityRole="button"
                 key={post._id}
-                onPress={() => router.push(`/posts/${post._id}` as Href)}
+                onPress={() => router.push(`/teatcher/posts/${post._id}` as Href)}
                 style={commonStyles.card}
               >
                 <View style={styles.postTitleRow}>

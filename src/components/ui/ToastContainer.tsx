@@ -2,14 +2,14 @@ import {
   IToastContainerProps,
   IToastItemProps,
 } from "@/interfaces/ui/IUiToast";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo } from "react";
 import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 function ToastItem({ toast, onClose }: IToastItemProps) {
-  const opacity = useRef(new Animated.Value(0)).current;
+  const opacity = useMemo(() => new Animated.Value(0), []);
 
-  const translateY = useRef(new Animated.Value(10)).current;
+  const translateY = useMemo(() => new Animated.Value(10), []);
 
   useEffect(() => {
     if (toast.leaving) {

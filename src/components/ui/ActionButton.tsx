@@ -1,4 +1,11 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  type StyleProp,
+  type TextStyle,
+} from "react-native";
 
 interface IActionButtonProps {
   label: string;
@@ -6,6 +13,7 @@ interface IActionButtonProps {
   disabled?: boolean;
   loading?: boolean;
   variant?: "primary" | "secondary" | "danger";
+  labelStyle?: StyleProp<TextStyle>;
 }
 
 export default function ActionButton({
@@ -14,6 +22,7 @@ export default function ActionButton({
   disabled = false,
   loading = false,
   variant = "primary",
+  labelStyle,
 }: IActionButtonProps) {
   const isInactive = disabled || loading;
 
@@ -41,7 +50,10 @@ export default function ActionButton({
         <Text
           style={[
             styles.label,
-            variant === "secondary" ? styles.secondaryLabel : styles.primaryLabel,
+            variant === "secondary"
+              ? styles.secondaryLabel
+              : styles.primaryLabel,
+            labelStyle,
           ]}
         >
           {label}
