@@ -101,7 +101,7 @@ for (const role of ["PROFESSOR", "ALUNO", null]) {
   test(`Home shows the professor entry only to professors: ${role}`, () => {
     const markup = homeMarkup(role);
     assert.equal(
-      markup.includes('href="/teatcher/dashboard"'),
+      markup.includes('href="/teacher/dashboard"'),
       role === "PROFESSOR",
     );
     assert.ok(markup.includes("Perfil"));
@@ -120,7 +120,7 @@ for (const role of ["PROFESSOR", "ALUNO", null]) {
       (child) => child.type === Stack.Protected,
     );
     assert.equal(protectedGroup.props.guard, role === "PROFESSOR");
-    assert.equal(protectedGroup.props.children.props.name, "teatcher");
+    assert.equal(protectedGroup.props.children.props.name, "teacher");
     assert.ok(
       children.some(
         (child) => child.type === Stack.Screen && child.props.name === "index",
@@ -131,28 +131,28 @@ for (const role of ["PROFESSOR", "ALUNO", null]) {
 
 test("the professor entry redirects to the canonical dashboard route", () => {
   const Redirect = noop;
-  const { default: TeatcherRoute } = loadSource(
-    "src/app/(app)/teatcher/index.tsx",
+  const { default: TeacherRoute } = loadSource(
+    "src/app/(app)/teacher/index.tsx",
     {
       "expo-router": { Redirect },
     },
   );
-  const target = TeatcherRoute();
+  const target = TeacherRoute();
   assert.equal(target.type, Redirect);
-  assert.equal(target.props.href, "/teatcher/dashboard");
+  assert.equal(target.props.href, "/teacher/dashboard");
 });
 
-test("the teatcher dashboard route maps to the teacher dashboard screen", () => {
+test("the teacher dashboard route maps to the teacher dashboard screen", () => {
   const TeacherDashboardScreen = () => React.createElement("section");
-  const { default: TeatcherDashboardRoute } = loadSource(
-    "src/app/(app)/teatcher/dashboard.tsx",
+  const { default: TeacherDashboardRoute } = loadSource(
+    "src/app/(app)/teacher/dashboard.tsx",
     {
       "@/features/posts/screens/TeacherDashboardScreen": {
         default: TeacherDashboardScreen,
       },
     },
   );
-  const target = TeatcherDashboardRoute();
+  const target = TeacherDashboardRoute();
   assert.equal(
     target.type === TeacherDashboardScreen ||
       target.type?.default === TeacherDashboardScreen,

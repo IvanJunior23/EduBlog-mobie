@@ -134,7 +134,7 @@ export default function TeacherDashboardScreen() {
               <View style={styles.actionCell}>
                 <ActionButton
                   label="Meus posts"
-                  onPress={() => router.push("/teatcher/posts" as Href)}
+                  onPress={() => router.push("/teacher/posts" as Href)}
                   variant="secondary"
                 />
               </View>
@@ -151,7 +151,7 @@ export default function TeacherDashboardScreen() {
               <View style={styles.actionCell}>
                 <ActionButton
                   label="Criar post"
-                  onPress={() => router.push("/teatcher/posts/new" as Href)}
+                  onPress={() => router.push("/teacher/posts/new" as Href)}
                 />
               </View>
               <View style={styles.actionCell}>
@@ -167,7 +167,7 @@ export default function TeacherDashboardScreen() {
           <View style={styles.sectionHeading}>
             <Text style={styles.sectionTitle}>Últimos posts</Text>
 
-            <Pressable onPress={() => router.push("/teatcher/posts" as Href)}>
+            <Pressable onPress={() => router.push("/teacher/posts" as Href)}>
               <Text style={styles.link}>Ver todos</Text>
             </Pressable>
           </View>
@@ -177,7 +177,7 @@ export default function TeacherDashboardScreen() {
               <Pressable
                 accessibilityRole="button"
                 key={post._id}
-                onPress={() => router.push(`/teatcher/posts/${post._id}` as Href)}
+                onPress={() => router.push(`/teacher/posts/${post._id}` as Href)}
                 style={commonStyles.card}
               >
                 <View style={styles.postTitleRow}>

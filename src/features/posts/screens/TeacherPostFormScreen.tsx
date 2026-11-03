@@ -182,7 +182,7 @@ export default function TeacherPostFormScreen() {
       }
 
       showSuccess(postId ? "Post atualizado com sucesso." : "Post criado com sucesso.");
-      router.dismissTo("/teatcher/posts" as Href);
+      router.dismissTo("/teacher/posts" as Href);
     } catch (error: unknown) {
       setSaveError(
         getRequestError(
@@ -207,7 +207,7 @@ export default function TeacherPostFormScreen() {
         <Text style={styles.errorText}>{loadError}</Text>
         <ActionButton
           label="Voltar para meus posts"
-          onPress={() => router.dismissTo("/teatcher/posts" as Href)}
+          onPress={() => router.dismissTo("/teacher/posts" as Href)}
           variant="secondary"
         />
       </View>
@@ -395,7 +395,7 @@ export default function TeacherPostFormScreen() {
           <View style={styles.buttons}>
             <ActionButton
               label="Cancelar"
-              onPress={() => router.dismissTo("/teatcher/posts" as Href)}
+              onPress={() => router.dismissTo("/teacher/posts" as Href)}
               variant="secondary"
             />
             <ActionButton

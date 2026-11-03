@@ -75,7 +75,7 @@ export default function HomeScreen() {
         </View>
         {user?.role === "PROFESSOR" ? (
           <View style={styles.professorNavigation}>
-            <Link href={"/teatcher/dashboard" as Href} asChild>
+            <Link href={"/teacher/dashboard" as Href} asChild>
               <Pressable
                 accessibilityRole="link"
                 accessibilityLabel="Abrir Painel do Professor"

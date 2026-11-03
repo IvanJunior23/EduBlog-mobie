@@ -13,7 +13,7 @@ export default function AppLayout() {
     >
       <Stack.Screen name="index" />
       <Stack.Protected guard={user?.role === "PROFESSOR"}>
-        <Stack.Screen name="teatcher" />
+        <Stack.Screen name="teacher" />
       </Stack.Protected>
     </Stack>
   );

@@ -158,13 +158,13 @@ export default function TeacherPostsScreen() {
             <Text style={commonStyles.title}>Meus Posts</Text>
             <Pressable
               accessibilityRole="link"
-              onPress={() => router.dismissTo("/teatcher/dashboard" as Href)}
+              onPress={() => router.dismissTo("/teacher/dashboard" as Href)}
             >
               <Text style={styles.backLink}>← Voltar ao Dashboard</Text>
             </Pressable>
             <ActionButton
               label="Novo post"
-              onPress={() => router.push("/teatcher/posts/new" as Href)}
+              onPress={() => router.push("/teacher/posts/new" as Href)}
             />
             {error ? (
               <View style={styles.errorBox}>
@@ -241,9 +241,9 @@ export default function TeacherPostsScreen() {
           <PostCard
             onDelete={() => confirmDelete(item)}
             onEdit={() =>
-              router.push(`/teatcher/posts/${item._id}/edit` as Href)
+              router.push(`/teacher/posts/${item._id}/edit` as Href)
             }
-            onView={() => router.push(`/teatcher/posts/${item._id}` as Href)}
+            onView={() => router.push(`/teacher/posts/${item._id}` as Href)}
             post={item}
           />
         )}
