@@ -13,6 +13,11 @@ import {
   postViewStyles as styles,
 } from "@/features/posts/styles";
 import { formatDate } from "@/features/posts/utils/post";
+import {
+  estimateReadingTime,
+  formatProfessorName,
+  splitParagraphs,
+} from "@/utils/postUtils";
 
 function resolveParam(param: string | string[] | undefined) {
   if (Array.isArray(param)) {
@@ -167,30 +172,6 @@ export default function PostViewScreen() {
       ) : null}
     </ScrollView>
   );
-}
-
-function splitParagraphs(content: string) {
-  return content
-    .split(/\n{2,}/)
-    .map((paragraph) => paragraph.trim())
-    .filter((paragraph) => paragraph.length > 0);
-}
-
-function formatProfessorName(name: string) {
-  const trimmed = name.trim();
-
-  return /^prof\.?\s/i.test(trimmed) ? trimmed : `Prof. ${trimmed}`;
-}
-
-function estimateReadingTime(...texts: string[]) {
-  const words = texts
-    .join(" ")
-    .replace(/<[^>]*>/g, " ")
-    .trim()
-    .split(/\s+/)
-    .filter((word) => word.length > 0);
-
-  return Math.max(1, Math.ceil(words.length / 200));
 }
 
 function Badge({ label, variant }: { label: string; variant: "teal" | "slate" }) {

@@ -2,12 +2,13 @@ import {
   IToastContainerProps,
   IToastItemProps,
 } from "@/interfaces/ui/IUiToast";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 function ToastItem({ toast, onClose }: IToastItemProps) {
-  const opacity = useMemo(() => new Animated.Value(0), []);
+  // eslint-disable-next-line react-hooks/refs
+  const opacity = useRef(new Animated.Value(0)).current;
 
   const translateY = useMemo(() => new Animated.Value(10), []);
 

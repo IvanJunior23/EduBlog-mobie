@@ -50,7 +50,7 @@ export function filterTeacherPosts(
       }
 
       if (status === "rascunho") {
-        return !isPublishedPost(post);
+        return isDraftPost(post);
       }
 
       return true;

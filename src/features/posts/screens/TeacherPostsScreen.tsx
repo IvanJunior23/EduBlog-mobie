@@ -7,10 +7,10 @@ import {
   commonStyles,
   teacherPostsStyles as styles,
 } from "@/features/posts/styles";
+import StatusBadge from "@/features/posts/components/StatusBadge";
 import {
   filterTeacherPosts,
   formatDate,
-  isPublishedPost,
 } from "@/features/posts/utils/post";
 import { useApiClient } from "@/hooks/useApiClient";
 import type { IPost } from "@/interfaces/IPost";
@@ -26,8 +26,6 @@ import {
   TextInput,
   View,
 } from "react-native";
-
-import { StatusBadge } from "@/features/posts/screens/TeacherDashboardScreen";
 
 type StatusFilter = "todos" | "publicado" | "rascunho";
 
@@ -263,16 +261,11 @@ function PostCard({
   onEdit: () => void;
   onDelete: () => void;
 }) {
-  const published = isPublishedPost(post);
-
   return (
     <View style={commonStyles.card}>
       <View style={styles.cardTitleRow}>
         <Text style={styles.postTitle}>{post.title}</Text>
-        <StatusBadge
-          published={published}
-          label={published ? "Publicado" : "Rascunho"}
-        />
+        <StatusBadge post={post} />
       </View>
       <Text style={commonStyles.subtitle}>{post.discipline.label}</Text>
       <Text style={styles.date}>Criado em {formatDate(post.createDate)}</Text>

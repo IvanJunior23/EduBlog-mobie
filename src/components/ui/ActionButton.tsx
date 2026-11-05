@@ -3,18 +3,8 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  type StyleProp,
-  type TextStyle,
 } from "react-native";
-
-interface IActionButtonProps {
-  label: string;
-  onPress: () => void;
-  disabled?: boolean;
-  loading?: boolean;
-  variant?: "primary" | "secondary" | "danger";
-  labelStyle?: StyleProp<TextStyle>;
-}
+import type { IActionButtonProps } from "@/interfaces/ui/IUiActionButton";
 
 export default function ActionButton({
   label,

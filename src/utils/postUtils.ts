@@ -50,3 +50,27 @@ export function formatSemester(value?: string | null): string {
   if (!value?.trim()) return "Não informado";
   return /^\d+$/.test(value) ? `${value}º semestre` : value;
 }
+
+export function splitParagraphs(content: string): string[] {
+  return content
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter((paragraph) => paragraph.length > 0);
+}
+
+export function formatProfessorName(name: string): string {
+  const trimmed = name.trim();
+
+  return /^prof\.?\s/i.test(trimmed) ? trimmed : `Prof. ${trimmed}`;
+}
+
+export function estimateReadingTime(...texts: string[]): number {
+  const words = texts
+    .join(" ")
+    .replace(/<[^>]*>/g, " ")
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word.length > 0);
+
+  return Math.max(1, Math.ceil(words.length / 200));
+}

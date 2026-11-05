@@ -1,23 +1,33 @@
 import ActionButton from "@/components/ui/ActionButton";
 import LoadingState from "@/components/ui/LoadingState";
 import { useAuth } from "@/context/AuthContext";
-import { useToast } from "@/context/ToastContext";
+import StatusBadge from "@/features/posts/components/StatusBadge";
 import { useApiClient } from "@/hooks/useApiClient";
 import { getAllPosts } from "@/services/postsService";
 import { Href, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Alert, Pressable, RefreshControl, ScrollView, Text, View } from "react-native";
+import {
+  Alert,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import {
   commonStyles,
   teacherDashboardStyles as styles,
 } from "@/features/posts/styles";
-import { formatDate, isDraftPost, isPublishedPost } from "@/features/posts/utils/post";
+import {
+  formatDate,
+  isDraftPost,
+  isPublishedPost,
+} from "@/features/posts/utils/post";
 import type { IPost } from "@/interfaces/IPost";
 
 export default function TeacherDashboardScreen() {
   const router = useRouter();
   const { user, logout } = useAuth();
-  const { showError } = useToast();
   const { request } = useApiClient();
 
   const [posts, setPosts] = useState<IPost[]>([]);
@@ -38,12 +48,11 @@ export default function TeacherDashboardScreen() {
       );
     } catch {
       setError("Não foi possível carregar os dados do painel.");
-      showError("Não foi possível carregar os dados do painel.");
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [request, showError, user?.email, user?.id]);
+  }, [request, user?.email, user?.id]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -65,7 +74,8 @@ export default function TeacherDashboardScreen() {
       [...posts]
         .sort(
           (left, right) =>
-            new Date(right.createDate).getTime() - new Date(left.createDate).getTime(),
+            new Date(right.createDate).getTime() -
+            new Date(left.createDate).getTime(),
         )
         .slice(0, 5),
     [posts],
@@ -140,8 +150,9 @@ export default function TeacherDashboardScreen() {
               </View>
               <View style={styles.actionCell}>
                 <ActionButton
+                  disabled
                   label="Painel Administrativo"
-                  onPress={() => showError("Painel administrativo em desenvolvimento.")}
+                  onPress={() => undefined}
                   labelStyle={{ textAlign: "center" }}
                   variant="secondary"
                 />
@@ -177,18 +188,18 @@ export default function TeacherDashboardScreen() {
               <Pressable
                 accessibilityRole="button"
                 key={post._id}
-                onPress={() => router.push(`/teacher/posts/${post._id}` as Href)}
+                onPress={() =>
+                  router.push(`/teacher/posts/${post._id}` as Href)
+                }
                 style={commonStyles.card}
               >
                 <View style={styles.postTitleRow}>
                   <Text style={styles.postTitle}>{post.title}</Text>
-                  <StatusBadge
-                    published={isPublishedPost(post)}
-                    label={post.status.label}
-                  />
+                  <StatusBadge post={post} />
                 </View>
                 <Text style={commonStyles.subtitle}>
-                  {post.discipline.label} · Criado em {formatDate(post.createDate)}
+                  {post.discipline.label} · Criado em{" "}
+                  {formatDate(post.createDate)}
                 </Text>
               </Pressable>
             ))
@@ -200,27 +211,6 @@ export default function TeacherDashboardScreen() {
         </>
       )}
     </ScrollView>
-  );
-}
-
-export function StatusBadge({
-  published,
-  label,
-}: {
-  published: boolean;
-  label: string;
-}) {
-  return (
-    <View style={[styles.badge, published ? styles.published : styles.draft]}>
-      <Text
-        style={[
-          styles.badgeText,
-          published ? styles.publishedText : styles.draftText,
-        ]}
-      >
-        {label}
-      </Text>
-    </View>
   );
 }
 

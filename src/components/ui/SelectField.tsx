@@ -1,19 +1,6 @@
 import { useState } from "react";
 import { FlatList, Modal, Pressable, StyleSheet, Text, View } from "react-native";
-
-interface ISelectOption {
-  label: string;
-  value: string;
-}
-
-interface ISelectFieldProps {
-  label: string;
-  value: string;
-  options: ISelectOption[];
-  placeholder: string;
-  onChange: (value: string) => void;
-  error?: string;
-}
+import type { ISelectFieldProps } from "@/interfaces/ui/IUiSelectField";
 
 export default function SelectField({
   label,
