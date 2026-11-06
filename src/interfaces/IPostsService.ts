@@ -4,6 +4,7 @@ export interface IPostsRequest {
     options?: {
       method?: string;
       signal?: AbortSignal;
+      body?: unknown;
     },
   ): Promise<T>;
 }

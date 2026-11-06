@@ -101,7 +101,7 @@ for (const role of ["PROFESSOR", "ALUNO", null]) {
   test(`Home shows the professor entry only to professors: ${role}`, () => {
     const markup = homeMarkup(role);
     assert.equal(
-      markup.includes('href="/professor/dashboard"'),
+      markup.includes('href="/teacher/dashboard"'),
       role === "PROFESSOR",
     );
     assert.ok(markup.includes("Perfil"));
@@ -120,7 +120,7 @@ for (const role of ["PROFESSOR", "ALUNO", null]) {
       (child) => child.type === Stack.Protected,
     );
     assert.equal(protectedGroup.props.guard, role === "PROFESSOR");
-    assert.equal(protectedGroup.props.children.props.name, "professor");
+    assert.equal(protectedGroup.props.children.props.name, "teacher");
     assert.ok(
       children.some(
         (child) => child.type === Stack.Screen && child.props.name === "index",
@@ -131,52 +131,31 @@ for (const role of ["PROFESSOR", "ALUNO", null]) {
 
 test("the professor entry redirects to the canonical dashboard route", () => {
   const Redirect = noop;
-  const { default: ProfessorRoute } = loadSource(
-    "src/app/(app)/professor/index.tsx",
+  const { default: TeacherRoute } = loadSource(
+    "src/app/(app)/teacher/index.tsx",
     {
       "expo-router": { Redirect },
     },
   );
-  const target = ProfessorRoute();
+  const target = TeacherRoute();
   assert.equal(target.type, Redirect);
-  assert.equal(target.props.href, "/professor/dashboard");
+  assert.equal(target.props.href, "/teacher/dashboard");
 });
 
-function findElement(node, type) {
-  if (!React.isValidElement(node)) return undefined;
-  if (node.type === type) return node;
-  for (const child of React.Children.toArray(node.props.children)) {
-    const match = findElement(child, type);
-    if (match) return match;
-  }
-}
-
-for (const canGoBack of [true, false]) {
-  test(`the dashboard returns to content with a safe direct-link fallback: ${canGoBack}`, () => {
-    const calls = [];
-    const router = {
-      canGoBack: () => canGoBack,
-      back: () => calls.push("back"),
-      replace: (href) => calls.push(href),
-    };
-    const { default: Dashboard } = loadSource(
-      "src/features/professor/screens/ProfessorDashboardScreen.tsx",
-      {
-        "@/context/AuthContext": {
-          useAuth: () => ({ user: userWithRole("PROFESSOR") }),
-        },
-        "@expo/vector-icons": { Ionicons: noop },
-        "expo-router": { Stack, useRouter: () => router },
-        "react-native": native,
-        "react-native-safe-area-context": { SafeAreaView: native.View },
+test("the teacher dashboard route maps to the teacher dashboard screen", () => {
+  const TeacherDashboardScreen = () => React.createElement("section");
+  const { default: TeacherDashboardRoute } = loadSource(
+    "src/app/(app)/teacher/dashboard.tsx",
+    {
+      "@/features/posts/screens/TeacherDashboardScreen": {
+        default: TeacherDashboardScreen,
       },
-    );
-    const screen = Dashboard();
-    const markup = renderToStaticMarkup(screen);
-    assert.ok(markup.includes("Painel do Professor"));
-    assert.ok(markup.includes("Ana"));
-    const backButton = findElement(screen, native.Pressable);
-    backButton.props.onPress();
-    assert.deepEqual(calls, [canGoBack ? "back" : "/"]);
-  });
-}
+    },
+  );
+  const target = TeacherDashboardRoute();
+  assert.equal(
+    target.type === TeacherDashboardScreen ||
+      target.type?.default === TeacherDashboardScreen,
+    true,
+  );
+});

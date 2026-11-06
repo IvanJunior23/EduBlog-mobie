@@ -42,44 +42,56 @@ export function usePostDiscovery() {
 
   useEffect(() => {
     const controller = new AbortController();
-    setLoading(true);
-    setError(false);
+    const timer = setTimeout(() => {
+      setLoading(true);
+      setError(false);
 
-    async function loadPosts() {
-      try {
-        const postResponse = await getPosts(request, controller.signal);
-        if (controller.signal.aborted) return;
+      async function loadPosts() {
+        try {
+          const postResponse = await getPosts(request, controller.signal);
+          if (controller.signal.aborted) return;
 
-        setPosts(sortPosts(postResponse.filter(isPublishedPost)));
-      } catch {
-        if (!controller.signal.aborted) setError(true);
-      } finally {
-        if (!controller.signal.aborted) setLoading(false);
+          setPosts(sortPosts(postResponse.filter(isPublishedPost)));
+        } catch {
+          if (!controller.signal.aborted) setError(true);
+        } finally {
+          if (!controller.signal.aborted) setLoading(false);
+        }
       }
-    }
 
-    void loadPosts();
-    return () => controller.abort();
+      void loadPosts();
+    }, 0);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, [request, revision]);
 
   useEffect(() => {
     const controller = new AbortController();
-    setDisciplinesLoading(true);
-    setDisciplinesError(false);
+    const timer = setTimeout(() => {
+      setDisciplinesLoading(true);
+      setDisciplinesError(false);
 
-    async function loadDisciplines() {
-      try {
-        const response = await getPostDisciplines(request, controller.signal);
-        if (!controller.signal.aborted) setDisciplines(response);
-      } catch {
-        if (!controller.signal.aborted) setDisciplinesError(true);
-      } finally {
-        if (!controller.signal.aborted) setDisciplinesLoading(false);
+      async function loadDisciplines() {
+        try {
+          const response = await getPostDisciplines(request, controller.signal);
+          if (!controller.signal.aborted) setDisciplines(response);
+        } catch {
+          if (!controller.signal.aborted) setDisciplinesError(true);
+        } finally {
+          if (!controller.signal.aborted) setDisciplinesLoading(false);
+        }
       }
-    }
 
-    void loadDisciplines();
-    return () => controller.abort();
+      void loadDisciplines();
+    }, 0);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, [request, disciplinesRevision]);
 
   const hasServerFilters = !!(
@@ -90,36 +102,42 @@ export function usePostDiscovery() {
 
   useEffect(() => {
     const controller = new AbortController();
-    setSearchError(false);
+    const timer = setTimeout(() => {
+      setSearchError(false);
 
-    if (!hasServerFilters || loading || error) {
-      setSearching(false);
-      return () => controller.abort();
-    }
-
-    setSearching(true);
-
-    async function loadResults() {
-      try {
-        const response = await searchPosts(
-          request,
-          {
-            query: searchQuery,
-            discipline: filters.discipline,
-            author: filters.author,
-          },
-          controller.signal,
-        );
-        if (!controller.signal.aborted) setSearchResults(sortPosts(response));
-      } catch {
-        if (!controller.signal.aborted) setSearchError(true);
-      } finally {
-        if (!controller.signal.aborted) setSearching(false);
+      if (!hasServerFilters || loading || error) {
+        setSearching(false);
+        return;
       }
-    }
 
-    void loadResults();
-    return () => controller.abort();
+      setSearching(true);
+
+      async function loadResults() {
+        try {
+          const response = await searchPosts(
+            request,
+            {
+              query: searchQuery,
+              discipline: filters.discipline,
+              author: filters.author,
+            },
+            controller.signal,
+          );
+          if (!controller.signal.aborted) setSearchResults(sortPosts(response));
+        } catch {
+          if (!controller.signal.aborted) setSearchError(true);
+        } finally {
+          if (!controller.signal.aborted) setSearching(false);
+        }
+      }
+
+      void loadResults();
+    }, 0);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, [
     request,
     searchQuery,

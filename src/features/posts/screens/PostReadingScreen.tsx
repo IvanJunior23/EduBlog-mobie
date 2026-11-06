@@ -38,44 +38,51 @@ export default function PostReadingScreen() {
 
   useEffect(() => {
     const controller = new AbortController();
-    setPost(null);
-    setError(false);
-    setNotFound(false);
-    setLoading(true);
 
-    async function loadPost() {
-      try {
-        if (typeof id !== "string" || !/^[a-f\d]{24}$/i.test(id)) {
-          setNotFound(true);
-          return;
+    const timer = setTimeout(() => {
+      setPost(null);
+      setError(false);
+      setNotFound(false);
+      setLoading(true);
+
+      async function loadPost() {
+        try {
+          if (typeof id !== "string" || !/^[a-f\d]{24}$/i.test(id)) {
+            setNotFound(true);
+            return;
+          }
+
+          const response = await getPostById(request, id, controller.signal);
+          if (controller.signal.aborted) return;
+
+          if (!response || !isPublishedPost(response)) {
+            setNotFound(true);
+            return;
+          }
+
+          setPost(response);
+        } catch (cause) {
+          if (controller.signal.aborted) return;
+          if (
+            cause instanceof ApiError &&
+            (cause.status === 404 || cause.status === 400)
+          ) {
+            setNotFound(true);
+          } else {
+            setError(true);
+          }
+        } finally {
+          if (!controller.signal.aborted) setLoading(false);
         }
-
-        const response = await getPostById(request, id, controller.signal);
-        if (controller.signal.aborted) return;
-
-        if (!response || !isPublishedPost(response)) {
-          setNotFound(true);
-          return;
-        }
-
-        setPost(response);
-      } catch (cause) {
-        if (controller.signal.aborted) return;
-        if (
-          cause instanceof ApiError &&
-          (cause.status === 404 || cause.status === 400)
-        ) {
-          setNotFound(true);
-        } else {
-          setError(true);
-        }
-      } finally {
-        if (!controller.signal.aborted) setLoading(false);
       }
-    }
 
-    void loadPost();
-    return () => controller.abort();
+      void loadPost();
+    }, 0);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, [id, request, revision]);
 
   function goBack() {
