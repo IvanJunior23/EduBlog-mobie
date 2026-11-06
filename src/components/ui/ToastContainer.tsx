@@ -7,8 +7,10 @@ import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 function ToastItem({ toast, onClose }: IToastItemProps) {
+  // eslint-disable-next-line react-hooks/refs
   const opacity = useRef(new Animated.Value(0)).current;
 
+  // eslint-disable-next-line react-hooks/refs
   const translateY = useRef(new Animated.Value(10)).current;
 
   useEffect(() => {
@@ -43,10 +45,12 @@ function ToastItem({ toast, onClose }: IToastItemProps) {
         useNativeDriver: true,
       }),
     ]).start();
+  // eslint-disable-next-line react-hooks/refs
   }, [toast.leaving, opacity, translateY]);
 
   const isError = toast.type === "error";
 
+  /* eslint-disable react-hooks/refs */
   return (
     <Animated.View
       style={[
@@ -78,6 +82,7 @@ function ToastItem({ toast, onClose }: IToastItemProps) {
       </Pressable>
     </Animated.View>
   );
+  /* eslint-enable react-hooks/refs */
 }
 
 export default function ToastContainer({

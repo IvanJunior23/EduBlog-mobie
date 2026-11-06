@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Link } from "expo-router";
+import { Link, type Href } from "expo-router";
 import { useMemo, useState } from "react";
 import {
   FlatList,
@@ -75,7 +75,7 @@ export default function HomeScreen() {
         </View>
         {user?.role === "PROFESSOR" ? (
           <View style={styles.professorNavigation}>
-            <Link href="/professor/dashboard" asChild>
+            <Link href={"/teacher/dashboard" as Href} asChild>
               <Pressable
                 accessibilityRole="link"
                 accessibilityLabel="Abrir Painel do Professor"
