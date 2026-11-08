@@ -1,16 +1,6 @@
+import { IUserRoleConfig } from "@/interfaces/IUser";
 import { UserRole } from "@/types/UserRole";
 import { Href } from "expo-router";
-
-interface IUserRoleConfig {
-  singular: string;
-  plural: string;
-  listTitle: string;
-  createTitle: string;
-  editTitle: string;
-  listHref: Href;
-  createHref: Href;
-  editHref: (id: string) => Href;
-}
 
 export const USER_ROLE_CONFIG: Record<UserRole, IUserRoleConfig> = {
   PROFESSOR: {

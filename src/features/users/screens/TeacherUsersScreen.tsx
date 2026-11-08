@@ -3,8 +3,8 @@ import LoadingState from "@/components/ui/LoadingState";
 import Pagination from "@/components/ui/Pagination";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
-import { StatusBadge } from "@/features/posts/screens/TeacherDashboardScreen";
-import { commonStyles } from "@/features/posts/styles";
+import { colors, commonStyles } from "@/features/posts/styles";
+import UserCard from "@/features/users/components/UserCard";
 import { USER_ROLE_CONFIG } from "@/features/users/constants/userRoleConfig";
 import { teacherUsersStyles as styles } from "@/features/users/styles";
 import { useApiClient } from "@/hooks/useApiClient";
@@ -127,7 +127,7 @@ export default function TeacherUsersScreen({ role }: ITeacherUsersScreenProps) {
           <RefreshControl
             onRefresh={() => void refresh()}
             refreshing={isRefreshing}
-            tintColor="#0f766e"
+            tintColor={colors.teal}
           />
         }
         renderItem={({ item }) => (
@@ -140,60 +140,5 @@ export default function TeacherUsersScreen({ role }: ITeacherUsersScreenProps) {
         )}
       />
     </SafeAreaView>
-  );
-}
-
-function UserCard({
-  user,
-  isCurrentUser,
-  onEdit,
-  onDelete,
-}: {
-  user: IUser;
-  isCurrentUser: boolean;
-  onEdit: () => void;
-  onDelete: () => void;
-}) {
-  return (
-    <View style={commonStyles.card}>
-      <View style={styles.cardTitleRow}>
-        <Text style={styles.userName}>
-          {user.name}
-          {isCurrentUser ? " (você)" : ""}
-        </Text>
-        <StatusBadge
-          label={user.isActive ? "Ativo" : "Inativo"}
-          published={user.isActive}
-        />
-      </View>
-      <Text style={styles.userMeta}>@{user.username}</Text>
-      <Text style={styles.userMeta}>{user.email}</Text>
-      <View style={styles.actions}>
-        <TextAction label="Editar" onPress={onEdit} />
-        {isCurrentUser ? null : (
-          <TextAction danger label="Excluir" onPress={onDelete} />
-        )}
-      </View>
-    </View>
-  );
-}
-
-function TextAction({
-  label,
-  onPress,
-  danger = false,
-}: {
-  label: string;
-  onPress: () => void;
-  danger?: boolean;
-}) {
-  return (
-    <Pressable
-      accessibilityRole="button"
-      onPress={onPress}
-      style={styles.actionButton}
-    >
-      <Text style={[styles.actionLabel, danger && styles.danger]}>{label}</Text>
-    </Pressable>
   );
 }

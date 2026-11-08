@@ -4,6 +4,14 @@ export type UserFormField = keyof IUserFormValues;
 
 export type UserFormErrors = Partial<Record<UserFormField, string>>;
 
+export const emptyUserValues: IUserFormValues = {
+  name: "",
+  username: "",
+  email: "",
+  password: "",
+  status: "ATIVO",
+};
+
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD_LENGTH = 6;
 

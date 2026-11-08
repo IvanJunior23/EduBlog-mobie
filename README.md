@@ -310,10 +310,10 @@ npx tsc --noEmit
 ### Navegação por perfil
 
 A Home exibe o atalho **Painel do Professor** apenas para usuários com
-`user.role === "PROFESSOR"`. A rota `/professor` redireciona para
-`/professor/dashboard`, seguindo o caminho utilizado na versão web.
+`user.role === "PROFESSOR"`. A rota `/teacher` redireciona para
+`/teacher/dashboard`, seguindo o caminho utilizado na versão web.
 
-O grupo de rotas `professor` é protegido com `Stack.Protected` no layout da área
+O grupo de rotas `teacher` é protegido com `Stack.Protected` no layout da área
 autenticada. Alunos não têm acesso a esse grupo, inclusive por link direto.
 As regras existentes de login e sessão foram preservadas.
 
@@ -326,6 +326,23 @@ Para verificar a navegação por perfil:
 ```bash
 node --test scripts/test-professor-navigation.mjs
 ```
+
+## Gestão de usuários
+
+No dashboard do professor o botão **Painel Administrativo** abre a Área Administrativa, utilizada para a gestão de professores e de alunos. Nas duas listas é possível cadastrar, editar, alterar o status (ativo ou inativo) e excluir usuários. A listagem é paginada, a exclusão pede confirmação e o resultado de cada operação é informado por mensagens de sucesso ou de erro.
+
+Esse módulo fica em `src/features/users`, com as rotas em `src/app/(app)/teacher`, o serviço em `src/services/usersService.ts` e o hook de listagem em `src/hooks/useUsers.ts`. As telas de professores e alunos usam a mesma implementação, os textos e as rotas de cada perfil ficam em `src/features/users/constants/userRoleConfig.ts`.
+
+- `/teacher/users`: Área Administrativa;
+- `/teacher/teachers`, `/teacher/teachers/new` e `/teacher/teachers/[id]/edit`: lista, cadastro e edição de professores;
+- `/teacher/students`, `/teacher/students/new` e `/teacher/students/[id]/edit`: lista, cadastro e edição de alunos.
+
+As rotas ficam no grupo `teacher` protegido com `Stack.Protected`. Alunos têm acesso apenas à leitura dos posts. A API também exige o token do professor nas operações de escrita.
+
+- `GET /catalog/users`: listagem e carregamento do usuário na edição;
+- `POST /catalog/users`: cadastro, com o perfil da tela (`role`) e o status (`isActive`);
+- `PUT /catalog/users/:id`: edição, incluindo o status; a senha só é enviada quando preenchida;
+- `DELETE /catalog/users/:id`: exclusão, após confirmação em um alerta.
 
 ## Scripts disponíveis
 

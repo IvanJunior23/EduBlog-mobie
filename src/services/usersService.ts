@@ -6,9 +6,13 @@ import {
 } from "@/interfaces/IUser";
 import { ApiRequest } from "@/types/Api";
 
-export async function getUsers(request: ApiRequest): Promise<IUser[]> {
+export async function getUsers(
+  request: ApiRequest,
+  signal?: AbortSignal,
+): Promise<IUser[]> {
   const response = await request<IApiResponse<IUser[]>>("/catalog/users", {
     method: "GET",
+    signal,
   });
 
   return response.data;

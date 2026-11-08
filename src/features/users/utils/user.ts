@@ -1,20 +1,20 @@
 import { IUser } from "@/interfaces/IUser";
 import { UserRole } from "@/types/UserRole";
 
-const PROFESSOR_EMAIL_DOMAIN = "@professor.com";
-
 export function resolveUserRole(user: IUser): UserRole | undefined {
   if (user.role === "PROFESSOR" || user.role === "ALUNO") {
     return user.role;
   }
 
-  if (user.role) {
-    return undefined;
+  return undefined;
+}
+
+export function resolveParam(param: string | string[] | undefined) {
+  if (Array.isArray(param)) {
+    return param[0];
   }
 
-  return user.email.toLowerCase().endsWith(PROFESSOR_EMAIL_DOMAIN)
-    ? "PROFESSOR"
-    : "ALUNO";
+  return param;
 }
 
 export function filterUsersByRole(users: IUser[], role: UserRole): IUser[] {

@@ -6,8 +6,11 @@ import { commonStyles } from "@/features/posts/styles";
 import UserForm from "@/features/users/components/UserForm";
 import { USER_ROLE_CONFIG } from "@/features/users/constants/userRoleConfig";
 import { teacherUserFormStyles as styles } from "@/features/users/styles";
-import { resolveUserRole } from "@/features/users/utils/user";
-import { validateUserForm } from "@/features/users/utils/validation";
+import { resolveParam, resolveUserRole } from "@/features/users/utils/user";
+import {
+  emptyUserValues,
+  validateUserForm,
+} from "@/features/users/utils/validation";
 import { useApiClient } from "@/hooks/useApiClient";
 import { ITeacherUserFormScreenProps, IUserFormValues } from "@/interfaces/IUser";
 import { createUser, getUsers, updateUser } from "@/services/usersService";
@@ -21,22 +24,6 @@ import { useEffect, useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const emptyValues: IUserFormValues = {
-  name: "",
-  username: "",
-  email: "",
-  password: "",
-  status: "ATIVO",
-};
-
-function resolveParam(param: string | string[] | undefined) {
-  if (Array.isArray(param)) {
-    return param[0];
-  }
-
-  return param;
-}
-
 export default function TeacherUserFormScreen({
   role,
 }: ITeacherUserFormScreenProps) {
@@ -49,12 +36,12 @@ export default function TeacherUserFormScreen({
   const isEditing = Boolean(userId);
 
   const { user: currentUser } = useAuth();
-  const { showSuccess, showError } = useToast();
+  const { showSuccess } = useToast();
   const { request } = useApiClient();
 
   const canChangeStatus = !userId || userId !== currentUser?.id;
 
-  const [values, setValues] = useState<IUserFormValues>(emptyValues);
+  const [values, setValues] = useState<IUserFormValues>(emptyUserValues);
   const [errors, setErrors] = useState<UserFormErrors>({});
   const [loading, setLoading] = useState(isEditing);
   const [saving, setSaving] = useState(false);
@@ -98,7 +85,6 @@ export default function TeacherUserFormScreen({
               "Não foi possível carregar os dados. Tente novamente.",
             ),
           );
-          showError("Não foi possível carregar os dados.");
         }
       } finally {
         if (active) {
@@ -112,7 +98,7 @@ export default function TeacherUserFormScreen({
     return () => {
       active = false;
     };
-  }, [userId, role, request, showError]);
+  }, [userId, role, request]);
 
   function goBackToList() {
     router.dismissTo(config.listHref);
@@ -180,7 +166,6 @@ export default function TeacherUserFormScreen({
           `Não foi possível salvar o ${config.singular}. Seus dados continuam no formulário; tente novamente.`,
         ),
       );
-      showError(`Não foi possível salvar o ${config.singular}.`);
     } finally {
       setSaving(false);
     }

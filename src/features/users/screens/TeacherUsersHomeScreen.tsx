@@ -1,5 +1,5 @@
-import ActionButton from "@/components/ui/ActionButton";
 import { commonStyles } from "@/features/posts/styles";
+import UserGroupCard from "@/features/users/components/UserGroupCard";
 import { USER_ROLE_CONFIG } from "@/features/users/constants/userRoleConfig";
 import { teacherUsersHomeStyles as styles } from "@/features/users/styles";
 import { Href, useRouter } from "expo-router";
@@ -40,25 +40,5 @@ export default function TeacherUsersHomeScreen() {
         />
       </ScrollView>
     </SafeAreaView>
-  );
-}
-
-function UserGroupCard({
-  title,
-  description,
-  label,
-  onPress,
-}: {
-  title: string;
-  description: string;
-  label: string;
-  onPress: () => void;
-}) {
-  return (
-    <View style={commonStyles.card}>
-      <Text style={styles.cardTitle}>{title}</Text>
-      <Text style={commonStyles.subtitle}>{description}</Text>
-      <ActionButton label={label} onPress={onPress} />
-    </View>
   );
 }

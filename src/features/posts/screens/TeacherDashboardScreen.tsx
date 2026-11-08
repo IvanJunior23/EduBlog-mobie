@@ -150,9 +150,8 @@ export default function TeacherDashboardScreen() {
               </View>
               <View style={styles.actionCell}>
                 <ActionButton
-                  disabled
                   label="Painel Administrativo"
-                  onPress={() => undefined}
+                  onPress={() => router.push("/teacher/users" as Href)}
                   labelStyle={{ textAlign: "center" }}
                   variant="secondary"
                 />

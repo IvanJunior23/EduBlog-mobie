@@ -1,4 +1,5 @@
 import { UserRole } from "@/types/UserRole";
+import type { Href } from "expo-router";
 import type {
   UserFormErrors,
   UserFormField,
@@ -47,6 +48,41 @@ export interface IUserFormProps {
   ) => void;
   onSubmit: () => void;
   onCancel: () => void;
+}
+
+export interface IUserRoleConfig {
+  singular: string;
+  plural: string;
+  listTitle: string;
+  createTitle: string;
+  editTitle: string;
+  listHref: Href;
+  createHref: Href;
+  editHref: (id: string) => Href;
+}
+
+export interface IUserGroupCardProps {
+  title: string;
+  description: string;
+  label: string;
+  onPress: () => void;
+}
+
+export interface IUserCardProps {
+  user: IUser;
+  isCurrentUser: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
+}
+
+export interface ITextActionProps {
+  label: string;
+  onPress: () => void;
+  danger?: boolean;
+}
+
+export interface IUserStatusBadgeProps {
+  isActive: boolean;
 }
 
 export interface ITeacherUsersScreenProps {

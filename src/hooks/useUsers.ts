@@ -16,27 +16,46 @@ export function useUsers(role: UserRole) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState("");
 
-  const loadUsers = useCallback(async () => {
-    try {
-      const allUsers = await getUsers(request);
+  const loadUsers = useCallback(
+    async (signal?: AbortSignal) => {
+      try {
+        const allUsers = await getUsers(request, signal);
 
-      setUsers(filterUsersByRole(allUsers, role));
-      setError("");
-    } catch (loadError: unknown) {
-      setError(
-        getRequestErrorMessage(
-          loadError,
-          "Não foi possível carregar os usuários. Verifique sua conexão e tente novamente.",
-        ),
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }, [request, role]);
+        if (signal?.aborted) {
+          return;
+        }
+
+        setUsers(filterUsersByRole(allUsers, role));
+        setError("");
+      } catch (loadError: unknown) {
+        if (signal?.aborted) {
+          return;
+        }
+
+        setError(
+          getRequestErrorMessage(
+            loadError,
+            "Não foi possível carregar os usuários. Verifique sua conexão e tente novamente.",
+          ),
+        );
+      } finally {
+        if (!signal?.aborted) {
+          setIsLoading(false);
+        }
+      }
+    },
+    [request, role],
+  );
 
   useFocusEffect(
     useCallback(() => {
-      void loadUsers();
+      const controller = new AbortController();
+
+      void loadUsers(controller.signal);
+
+      return () => {
+        controller.abort();
+      };
     }, [loadUsers]),
   );
 
@@ -59,7 +78,7 @@ export function useUsers(role: UserRole) {
     isLoading,
     isRefreshing,
     error,
-    reload: loadUsers,
+    reload: () => loadUsers(),
     refresh,
     retry,
   };
