@@ -8,3 +8,8 @@ export type AuthenticatedRequestOptions = Omit<
   ApiRequestOptions,
   "token" | "onUnauthorized"
 >;
+
+export type ApiRequest = <TResponse>(
+  path: string,
+  options?: AuthenticatedRequestOptions,
+) => Promise<TResponse>;

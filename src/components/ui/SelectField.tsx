@@ -9,6 +9,8 @@ export default function SelectField({
   placeholder,
   onChange,
   error,
+  hint,
+  disabled = false,
 }: ISelectFieldProps) {
   const [isOpen, setIsOpen] = useState(false);
   const selected = options.find((option) => option.value === value);
@@ -20,8 +22,14 @@ export default function SelectField({
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`${label}: ${selected?.label ?? placeholder}`}
+        accessibilityState={{ disabled }}
+        disabled={disabled}
         onPress={() => setIsOpen(true)}
-        style={[styles.select, error && styles.invalid]}
+        style={[
+          styles.select,
+          error && styles.invalid,
+          disabled && styles.disabled,
+        ]}
       >
         <Text style={[styles.selectText, !selected && styles.placeholder]}>
           {selected?.label ?? placeholder}
@@ -29,6 +37,8 @@ export default function SelectField({
 
         <Text style={styles.chevron}>⌄</Text>
       </Pressable>
+
+      {hint ? <Text style={styles.hint}>{hint}</Text> : null}
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
@@ -106,6 +116,15 @@ const styles = StyleSheet.create({
   },
   invalid: {
     borderColor: "#be123c",
+  },
+  disabled: {
+    backgroundColor: "#f1f5f9",
+    opacity: 0.7,
+  },
+  hint: {
+    color: "#64748b",
+    fontSize: 13,
+    marginTop: 5,
   },
   error: {
     color: "#be123c",
