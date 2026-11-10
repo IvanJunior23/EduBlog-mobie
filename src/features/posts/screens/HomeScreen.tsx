@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Link, type Href } from "expo-router";
 import { useMemo, useState } from "react";
 import {
+  Alert,
   FlatList,
   Pressable,
   StyleSheet,
@@ -41,7 +42,24 @@ export default function HomeScreen() {
   }
 
   async function handleLogout() {
-    await logout();
+    Alert.alert("Encerrar sessão", "Deseja sair da sua conta?", [
+      {
+        text: "Cancelar",
+        style: "cancel",
+      },
+      {
+        text: "Sair",
+        style: "destructive",
+        onPress: () => {
+          void logout().catch(() => {
+            Alert.alert(
+              "Erro ao sair",
+              "Não foi possível encerrar sua sessão. Tente novamente.",
+            );
+          });
+        },
+      },
+    ]);
   }
 
   const busy = discovery.loading || discovery.searching;
@@ -66,8 +84,12 @@ export default function HomeScreen() {
             </Link>
             <Pressable
               accessibilityRole="button"
+              accessibilityLabel="Encerrar sessão"
               onPress={handleLogout}
-              style={styles.headerButton}
+              style={({ pressed }) => [
+                styles.headerButton,
+                pressed && { opacity: 0.7 },
+              ]}
             >
               <Text style={styles.headerButtonText}>Sair</Text>
             </Pressable>
@@ -84,9 +106,15 @@ export default function HomeScreen() {
                   pressed && styles.professorLinkPressed,
                 ]}
               >
-                <Ionicons name="school-outline" size={20} color="#0F766E" />
-                <Text style={styles.filterButtonText}>Painel do Professor</Text>
-                <Ionicons name="chevron-forward" size={16} color="#0F766E" />
+                <View style={styles.professorLinkContent}>
+                  <Ionicons name="school-outline" size={20} color="#0F766E" />
+
+                  <Text style={styles.professorLinkText} numberOfLines={1}>
+                    Painel do Professor
+                  </Text>
+
+                  <Ionicons name="chevron-forward" size={16} color="#0F766E" />
+                </View>
               </Pressable>
             </Link>
           </View>
@@ -361,14 +389,23 @@ const styles = StyleSheet.create({
   },
   professorLink: {
     minHeight: 44,
-    flexDirection: "row",
-    alignItems: "center",
-    flexWrap: "wrap",
-    gap: 8,
-    paddingHorizontal: 12,
+    alignSelf: "flex-start",
+    justifyContent: "center",
+    paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 10,
     backgroundColor: "#E8FAF6",
+  },
+  professorLinkContent: {
+    flexDirection: "row",
+    flexWrap: "nowrap",
+    alignItems: "center",
+    gap: 8,
+  },
+  professorLinkText: {
+    color: "#0F766E",
+    fontSize: 14,
+    fontWeight: "700",
   },
   professorLinkPressed: { opacity: 0.7 },
   content: {

@@ -8,6 +8,7 @@ import {
   commonStyles,
   teacherPostFormStyles as styles,
 } from "@/features/posts/styles";
+import { normalizeText } from "@/features/posts/utils/post";
 import {
   emptyPostValues,
   formatSemesterForApi,
@@ -19,8 +20,9 @@ import {
   type FieldErrors,
   type FormField,
 } from "@/features/posts/utils/validation";
-import { normalizeText } from "@/features/posts/utils/post";
 import { useApiClient } from "@/hooks/useApiClient";
+import type { IDiscipline } from "@/interfaces/IDiscipline";
+import type { IPostStatus } from "@/interfaces/IPostStatus";
 import type { IPostValues } from "@/interfaces/IPostValues";
 import {
   createPost,
@@ -41,9 +43,10 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import type { IDiscipline } from "@/interfaces/IDiscipline";
-import type { IPostStatus } from "@/interfaces/IPostStatus";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 function resolveParam(param: string | string[] | undefined) {
   if (Array.isArray(param)) {
@@ -81,11 +84,12 @@ export default function TeacherPostFormScreen() {
       setSaveError("");
 
       try {
-        const [availableDisciplines, availableStatuses, post] = await Promise.all([
-          getDisciplines(request),
-          getPostStatuses(request),
-          postId ? getPostById(request, postId) : Promise.resolve(null),
-        ]);
+        const [availableDisciplines, availableStatuses, post] =
+          await Promise.all([
+            getDisciplines(request),
+            getPostStatuses(request),
+            postId ? getPostById(request, postId) : Promise.resolve(null),
+          ]);
 
         if (!active) {
           return;
@@ -181,7 +185,9 @@ export default function TeacherPostFormScreen() {
         await createPost(request, payload);
       }
 
-      showSuccess(postId ? "Post atualizado com sucesso." : "Post criado com sucesso.");
+      showSuccess(
+        postId ? "Post atualizado com sucesso." : "Post criado com sucesso.",
+      );
       router.dismissTo("/teacher/posts" as Href);
     } catch (error: unknown) {
       setSaveError(
@@ -215,199 +221,212 @@ export default function TeacherPostFormScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      style={styles.page}
-    >
-      <ScrollView
-        contentContainerStyle={[commonStyles.content, { paddingBottom: insets.bottom + 32 }]}
-        keyboardShouldPersistTaps="handled"
+    <SafeAreaView edges={["top"]} style={commonStyles.page}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={styles.page}
       >
-        <View style={styles.headingBlock}>
-          <Text style={commonStyles.title}>{postId ? "Editar Post" : "Novo Post"}</Text>
-          <Text style={commonStyles.subtitle}>
-            {postId
-              ? "Atualize o conteúdo e salve suas alterações."
-              : "Compartilhe um novo conteúdo com seus alunos."}{" "}
-            Campos com * são obrigatórios.
-          </Text>
-        </View>
-
-        {!availableCatalogs ? (
-          <Text style={styles.warning}>
-            É necessário ter uma disciplina e um status ativos cadastrados para
-            salvar posts.
-          </Text>
-        ) : null}
-
-        <View style={commonStyles.card}>
-          <FormInput
-            error={errors.title}
-            label="Título *"
-            maxLength={100}
-            onChangeText={(text) => changeField("title", text)}
-            placeholder="Título do conteúdo"
-            value={values.title}
-          />
-          <Text style={styles.counter}>{values.title.length}/100 caracteres</Text>
-
-          <FormInput
-            error={errors.summary}
-            label="Resumo *"
-            maxLength={300}
-            multiline
-            onChangeText={(text) => changeField("summary", text)}
-            placeholder="Uma breve apresentação do post"
-            value={values.summary}
-          />
-          <Text style={styles.counter}>{values.summary.length}/300 caracteres</Text>
-
-          <FormInput
-            error={errors.content}
-            label="Conteúdo *"
-            multiline
-            onChangeText={(text) => changeField("content", text)}
-            placeholder="Escreva o conteúdo completo do post"
-            value={values.content}
-          />
-          <Text style={styles.hint}>
-            Use texto simples. Separe os parágrafos com uma linha em branco.
-          </Text>
-
-          <SelectField
-            error={errors.disciplineId}
-            label="Disciplina *"
-            onChange={(value) => changeField("disciplineId", value)}
-            options={[
-              { label: "Selecione a disciplina", value: "" },
-              ...disciplines
-                .filter((item) => item.isActive || item._id === values.disciplineId)
-                .map((item) => ({
-                  label: item.label,
-                  value: item._id,
-                })),
-            ]}
-            placeholder="Selecione a disciplina"
-            value={values.disciplineId}
-          />
-
-          <SelectField
-            error={errors.statusId}
-            label="Status *"
-            onChange={(value) => changeField("statusId", value)}
-            options={[
-              { label: "Selecione o status", value: "" },
-              ...statuses
-                .filter(
-                  (item) =>
-                    (item.isActive || item._id === values.statusId) &&
-                    normalizeText(item.label) !== "arquivado",
-                )
-                .map((item) => ({
-                  label: item.label,
-                  value: item._id,
-                })),
-            ]}
-            placeholder="Selecione o status"
-            value={values.statusId}
-          />
-
-          <FormInput
-            error={errors.semester}
-            label="Semestre *"
-            keyboardType="number-pad"
-            maxLength={1}
-            onChangeText={(text) => {
-              const digits = text.replace(/\D/g, "");
-
-              if (!digits) {
-                changeField("semester", "");
-                return;
-              }
-
-              const numeric = Number.parseInt(digits, 10);
-              changeField(
-                "semester",
-                Number.isInteger(numeric) && numeric >= 1 && numeric <= 4
-                  ? String(numeric)
-                  : "",
-              );
-            }}
-            placeholder="Digite um número de 1 a 4"
-            value={values.semester}
-          />
-
-          <FormInput
-            error={errors.series}
-            keyboardType="number-pad"
-            label="Série / Ano (opcional)"
-            maxLength={1}
-            onChangeText={(text) => {
-              const digits = text.replace(/\D/g, "");
-
-              if (!digits) {
-                changeField("series", "");
-                return;
-              }
-
-              const numeric = Number.parseInt(digits, 10);
-              changeField(
-                "series",
-                Number.isInteger(numeric) && numeric >= 1 && numeric <= 9
-                  ? String(numeric)
-                  : "",
-              );
-            }}
-            placeholder="Digite um número de 1 a 9"
-            value={values.series}
-          />
-
-          <FormInput
-            autoCapitalize="none"
-            error={errors.imageUrl}
-            keyboardType="url"
-            label="URL da imagem de capa (opcional)"
-            onChangeText={(text) => changeField("imageUrl", text)}
-            placeholder="https://exemplo.com/imagem.jpg"
-            value={values.imageUrl}
-          />
-          <Text style={styles.hint}>
-            Deixe em branco para salvar sem imagem de capa.
-          </Text>
-
-          <View style={styles.switchRow}>
-            <Text style={styles.switchLabel}>Marcar post como destaque</Text>
-            <Switch
-              accessibilityLabel="Marcar post como destaque"
-              onValueChange={(checked) => changeField("isFeatured", checked)}
-              thumbColor={values.isFeatured ? colors.teal : undefined}
-              trackColor={{ true: "#99f6e4", false: "#cbd5e1" }}
-              value={values.isFeatured}
-            />
+        <ScrollView
+          contentContainerStyle={[
+            commonStyles.content,
+            { paddingBottom: insets.bottom + 32 },
+          ]}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.headingBlock}>
+            <Text style={commonStyles.title}>
+              {postId ? "Editar Post" : "Novo Post"}
+            </Text>
+            <Text style={commonStyles.subtitle}>
+              {postId
+                ? "Atualize o conteúdo e salve suas alterações."
+                : "Compartilhe um novo conteúdo com seus alunos."}{" "}
+              Campos com * são obrigatórios.
+            </Text>
           </View>
 
-          {saveError ? (
-            <Text accessibilityRole="alert" style={styles.errorText}>
-              {saveError}
+          {!availableCatalogs ? (
+            <Text style={styles.warning}>
+              É necessário ter uma disciplina e um status ativos cadastrados
+              para salvar posts.
             </Text>
           ) : null}
 
-          <View style={styles.buttons}>
-            <ActionButton
-              label="Cancelar"
-              onPress={() => router.dismissTo("/teacher/posts" as Href)}
-              variant="secondary"
+          <View style={commonStyles.card}>
+            <FormInput
+              error={errors.title}
+              label="Título *"
+              maxLength={100}
+              onChangeText={(text) => changeField("title", text)}
+              placeholder="Título do conteúdo"
+              value={values.title}
             />
-            <ActionButton
-              disabled={!availableCatalogs}
-              label={postId ? "Salvar alterações" : "Criar post"}
-              loading={saving}
-              onPress={() => void handleSave()}
+            <Text style={styles.counter}>
+              {values.title.length}/100 caracteres
+            </Text>
+
+            <FormInput
+              error={errors.summary}
+              label="Resumo *"
+              maxLength={300}
+              multiline
+              onChangeText={(text) => changeField("summary", text)}
+              placeholder="Uma breve apresentação do post"
+              value={values.summary}
             />
+            <Text style={styles.counter}>
+              {values.summary.length}/300 caracteres
+            </Text>
+
+            <FormInput
+              error={errors.content}
+              label="Conteúdo *"
+              multiline
+              onChangeText={(text) => changeField("content", text)}
+              placeholder="Escreva o conteúdo completo do post"
+              value={values.content}
+            />
+            <Text style={styles.hint}>
+              Use texto simples. Separe os parágrafos com uma linha em branco.
+            </Text>
+
+            <SelectField
+              error={errors.disciplineId}
+              label="Disciplina *"
+              onChange={(value) => changeField("disciplineId", value)}
+              options={[
+                { label: "Selecione a disciplina", value: "" },
+                ...disciplines
+                  .filter(
+                    (item) => item.isActive || item._id === values.disciplineId,
+                  )
+                  .map((item) => ({
+                    label: item.label,
+                    value: item._id,
+                  })),
+              ]}
+              placeholder="Selecione a disciplina"
+              value={values.disciplineId}
+            />
+
+            <SelectField
+              error={errors.statusId}
+              label="Status *"
+              onChange={(value) => changeField("statusId", value)}
+              options={[
+                { label: "Selecione o status", value: "" },
+                ...statuses
+                  .filter(
+                    (item) =>
+                      (item.isActive || item._id === values.statusId) &&
+                      normalizeText(item.label) !== "arquivado",
+                  )
+                  .map((item) => ({
+                    label: item.label,
+                    value: item._id,
+                  })),
+              ]}
+              placeholder="Selecione o status"
+              value={values.statusId}
+            />
+
+            <FormInput
+              error={errors.semester}
+              label="Semestre *"
+              keyboardType="number-pad"
+              maxLength={1}
+              onChangeText={(text) => {
+                const digits = text.replace(/\D/g, "");
+
+                if (!digits) {
+                  changeField("semester", "");
+                  return;
+                }
+
+                const numeric = Number.parseInt(digits, 10);
+                changeField(
+                  "semester",
+                  Number.isInteger(numeric) && numeric >= 1 && numeric <= 4
+                    ? String(numeric)
+                    : "",
+                );
+              }}
+              placeholder="Digite um número de 1 a 4"
+              value={values.semester}
+            />
+
+            <FormInput
+              error={errors.series}
+              keyboardType="number-pad"
+              label="Série / Ano (opcional)"
+              maxLength={1}
+              onChangeText={(text) => {
+                const digits = text.replace(/\D/g, "");
+
+                if (!digits) {
+                  changeField("series", "");
+                  return;
+                }
+
+                const numeric = Number.parseInt(digits, 10);
+                changeField(
+                  "series",
+                  Number.isInteger(numeric) && numeric >= 1 && numeric <= 9
+                    ? String(numeric)
+                    : "",
+                );
+              }}
+              placeholder="Digite um número de 1 a 9"
+              value={values.series}
+            />
+
+            <FormInput
+              autoCapitalize="none"
+              error={errors.imageUrl}
+              keyboardType="url"
+              label="URL da imagem de capa (opcional)"
+              onChangeText={(text) => changeField("imageUrl", text)}
+              placeholder="https://exemplo.com/imagem.jpg"
+              value={values.imageUrl}
+            />
+            <Text style={styles.hint}>
+              Deixe em branco para salvar sem imagem de capa.
+            </Text>
+
+            <View style={styles.switchRow}>
+              <Text style={styles.switchLabel}>Marcar post como destaque</Text>
+              <Switch
+                accessibilityLabel="Marcar post como destaque"
+                onValueChange={(checked) => changeField("isFeatured", checked)}
+                thumbColor={values.isFeatured ? colors.teal : undefined}
+                trackColor={{ true: "#99f6e4", false: "#cbd5e1" }}
+                value={values.isFeatured}
+              />
+            </View>
+
+            {saveError ? (
+              <Text accessibilityRole="alert" style={styles.errorText}>
+                {saveError}
+              </Text>
+            ) : null}
+
+            <View style={styles.buttons}>
+              <ActionButton
+                label="Cancelar"
+                onPress={() => router.dismissTo("/teacher/posts" as Href)}
+                variant="secondary"
+              />
+              <ActionButton
+                disabled={!availableCatalogs}
+                label={postId ? "Salvar alterações" : "Criar post"}
+                loading={saving}
+                onPress={() => void handleSave()}
+              />
+            </View>
           </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 

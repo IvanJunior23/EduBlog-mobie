@@ -237,8 +237,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   homeButtonText: {
-    color: "#183153",
-    fontWeight: "600",
+    color: "#0F766E",
+    fontWeight: "700",
     fontSize: 13,
   },
   buttonPressed: {
