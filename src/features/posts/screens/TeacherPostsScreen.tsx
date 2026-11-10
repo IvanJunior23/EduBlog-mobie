@@ -3,15 +3,12 @@ import LoadingState from "@/components/ui/LoadingState";
 import SelectField from "@/components/ui/SelectField";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
+import StatusBadge from "@/features/posts/components/StatusBadge";
 import {
   commonStyles,
   teacherPostsStyles as styles,
 } from "@/features/posts/styles";
-import StatusBadge from "@/features/posts/components/StatusBadge";
-import {
-  filterTeacherPosts,
-  formatDate,
-} from "@/features/posts/utils/post";
+import { filterTeacherPosts, formatDate } from "@/features/posts/utils/post";
 import { useApiClient } from "@/hooks/useApiClient";
 import type { IPost } from "@/interfaces/IPost";
 import { deletePost, getAllPosts } from "@/services/postsService";
@@ -26,6 +23,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type StatusFilter = "todos" | "publicado" | "rascunho";
 
@@ -137,116 +135,121 @@ export default function TeacherPostsScreen() {
   }
 
   return (
-    <View style={styles.page}>
-      <FlatList
-        contentContainerStyle={commonStyles.content}
-        data={error ? [] : filteredPosts}
-        keyExtractor={(post) => post._id}
-        ListEmptyComponent={
-          <View style={commonStyles.card}>
-            <Text style={commonStyles.subtitle}>
-              {error
-                ? "Nenhum conteúdo carregado."
-                : "Nenhum post encontrado para os filtros aplicados."}
-            </Text>
-          </View>
-        }
-        ListHeaderComponent={
-          <View style={styles.header}>
-            <Text style={commonStyles.title}>Meus Posts</Text>
-            <Pressable
-              accessibilityRole="link"
-              onPress={() => router.dismissTo("/teacher/dashboard" as Href)}
-            >
-              <Text style={styles.backLink}>← Voltar ao Dashboard</Text>
-            </Pressable>
-            <ActionButton
-              label="Novo post"
-              onPress={() => router.push("/teacher/posts/new" as Href)}
-            />
-            {error ? (
-              <View style={styles.errorBox}>
-                <Text style={styles.errorText}>{error}</Text>
-                <ActionButton
-                  label="Tentar novamente"
-                  onPress={() => void loadPosts()}
-                  variant="secondary"
+    <SafeAreaView edges={["top"]} style={commonStyles.page}>
+      <View style={styles.page}>
+        <FlatList
+          contentContainerStyle={commonStyles.content}
+          data={error ? [] : filteredPosts}
+          keyExtractor={(post) => post._id}
+          ListEmptyComponent={
+            <View style={commonStyles.card}>
+              <Text style={commonStyles.subtitle}>
+                {error
+                  ? "Nenhum conteúdo carregado."
+                  : "Nenhum post encontrado para os filtros aplicados."}
+              </Text>
+            </View>
+          }
+          ListHeaderComponent={
+            <View style={styles.header}>
+              <Text style={commonStyles.title}>Meus Posts</Text>
+              <Pressable
+                accessibilityRole="link"
+                onPress={() => router.dismissTo("/teacher/dashboard" as Href)}
+              >
+                <Text style={styles.backLink}>← Voltar ao Dashboard</Text>
+              </Pressable>
+              <ActionButton
+                label="Novo post"
+                onPress={() => router.push("/teacher/posts/new" as Href)}
+              />
+              {error ? (
+                <View style={styles.errorBox}>
+                  <Text style={styles.errorText}>{error}</Text>
+                  <ActionButton
+                    label="Tentar novamente"
+                    onPress={() => void loadPosts()}
+                    variant="secondary"
+                  />
+                </View>
+              ) : null}
+              <View style={styles.filters}>
+                <TextInput
+                  accessibilityLabel="Buscar post por título"
+                  onChangeText={setSearch}
+                  placeholder="Buscar por título..."
+                  returnKeyType="search"
+                  style={commonStyles.input}
+                  value={search}
+                />
+                <SelectField
+                  label="Disciplina"
+                  onChange={setDiscipline}
+                  options={[
+                    { label: "Todas as disciplinas", value: "" },
+                    ...disciplines.map((item) => ({
+                      label: item,
+                      value: item,
+                    })),
+                  ]}
+                  placeholder="Todas as disciplinas"
+                  value={discipline}
                 />
               </View>
-            ) : null}
-            <View style={styles.filters}>
-              <TextInput
-                accessibilityLabel="Buscar post por título"
-                onChangeText={setSearch}
-                placeholder="Buscar por título..."
-                returnKeyType="search"
-                style={commonStyles.input}
-                value={search}
-              />
-              <SelectField
-                label="Disciplina"
-                onChange={setDiscipline}
-                options={[
-                  { label: "Todas as disciplinas", value: "" },
-                  ...disciplines.map((item) => ({ label: item, value: item })),
-                ]}
-                placeholder="Todas as disciplinas"
-                value={discipline}
-              />
-            </View>
-            <View style={styles.statusFilters}>
-              {(
-                [
-                  ["todos", "Todos"],
-                  ["publicado", "Publicados"],
-                  ["rascunho", "Rascunhos"],
-                ] as const
-              ).map(([value, label]) => (
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: status === value }}
-                  key={value}
-                  onPress={() => setStatus(value)}
-                  style={[
-                    styles.filterButton,
-                    status === value && styles.activeFilter,
-                  ]}
-                >
-                  <Text
+              <View style={styles.statusFilters}>
+                {(
+                  [
+                    ["todos", "Todos"],
+                    ["publicado", "Publicados"],
+                    ["rascunho", "Rascunhos"],
+                  ] as const
+                ).map(([value, label]) => (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: status === value }}
+                    key={value}
+                    onPress={() => setStatus(value)}
                     style={[
-                      styles.filterText,
-                      status === value && styles.activeFilterText,
+                      styles.filterButton,
+                      status === value && styles.activeFilter,
                     ]}
                   >
-                    {label}
-                  </Text>
-                </Pressable>
-              ))}
+                    <Text
+                      style={[
+                        styles.filterText,
+                        status === value && styles.activeFilterText,
+                      ]}
+                    >
+                      {label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
             </View>
-          </View>
-        }
-        refreshControl={
-          <RefreshControl
-            onRefresh={() => {
-              setRefreshing(true);
-              void loadPosts();
-            }}
-            refreshing={refreshing}
-            tintColor="#0f766e"
-          />
-        }
-        renderItem={({ item }) => (
-          <PostCard
-            onDelete={() => confirmDelete(item)}
-            onEdit={() =>
-              router.push(`/teacher/posts/${item._id}/edit` as Href)
-            }
-            onView={() => router.push(`/teacher/posts/${item._id}` as Href)}
-            post={item}
-          />
-        )}
-      />
-    </View>
+          }
+          refreshControl={
+            <RefreshControl
+              onRefresh={() => {
+                setRefreshing(true);
+                void loadPosts();
+              }}
+              refreshing={refreshing}
+              tintColor="#0f766e"
+            />
+          }
+          renderItem={({ item }) => (
+            <PostCard
+              onDelete={() => confirmDelete(item)}
+              onEdit={() =>
+                router.push(`/teacher/posts/${item._id}/edit` as Href)
+              }
+              onView={() => router.push(`/teacher/posts/${item._id}` as Href)}
+              post={item}
+            />
+          )}
+        />
+      </View>
+    </SafeAreaView>
   );
 }
 

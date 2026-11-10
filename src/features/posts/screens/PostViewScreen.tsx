@@ -1,23 +1,26 @@
 import ActionButton from "@/components/ui/ActionButton";
 import LoadingState from "@/components/ui/LoadingState";
 import { useAuth } from "@/context/AuthContext";
-import { useApiClient } from "@/hooks/useApiClient";
-import type { IPost } from "@/interfaces/IPost";
-import { getPostById } from "@/services/postsService";
-import { Href, useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-import { Image, Pressable, ScrollView, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   commonStyles,
   postViewStyles as styles,
 } from "@/features/posts/styles";
 import { formatDate } from "@/features/posts/utils/post";
+import { useApiClient } from "@/hooks/useApiClient";
+import type { IPost } from "@/interfaces/IPost";
+import { getPostById } from "@/services/postsService";
 import {
   estimateReadingTime,
   formatProfessorName,
   splitParagraphs,
 } from "@/utils/postUtils";
+import { Href, useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { Image, Pressable, ScrollView, Text, View } from "react-native";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 function resolveParam(param: string | string[] | undefined) {
   if (Array.isArray(param)) {
@@ -80,7 +83,9 @@ export default function PostViewScreen() {
   if (!post || error) {
     return (
       <View style={[commonStyles.card, styles.errorCard]}>
-        <Text style={styles.error}>{error || "Publicação não encontrada."}</Text>
+        <Text style={styles.error}>
+          {error || "Publicação não encontrada."}
+        </Text>
         <ActionButton
           label="Voltar"
           onPress={() => {
@@ -98,86 +103,108 @@ export default function PostViewScreen() {
   }
 
   return (
-    <ScrollView
-      contentContainerStyle={[
-        commonStyles.content,
-        {
-          paddingBottom: insets.bottom + 32,
-        },
-      ]}
-    >
-      {user?.role === "PROFESSOR" ? (
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => router.dismissTo("/teacher/dashboard" as Href)}
-        >
-          <Text style={styles.backLink}>← Voltar ao painel do professor</Text>
-        </Pressable>
-      ) : null}
+    <SafeAreaView edges={["top"]} style={commonStyles.page}>
+      <ScrollView
+        contentContainerStyle={[
+          commonStyles.content,
+          {
+            paddingBottom: insets.bottom + 32,
+          },
+        ]}
+      >
+        {user?.role === "PROFESSOR" ? (
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.dismissTo("/teacher/dashboard" as Href)}
+          >
+            <Text style={styles.backLink}>← Voltar ao painel do professor</Text>
+          </Pressable>
+        ) : null}
 
-      <View style={styles.article}>
-        {post.imageUrl ? (
-          <Image
-            accessibilityLabel={post.title}
-            resizeMode="cover"
-            source={{ uri: post.imageUrl }}
-            style={styles.cover}
-          />
-        ) : (
-          <View style={styles.fallbackCover}>
-            <Text style={styles.fallbackText}>
-              {post.discipline.label.slice(0, 3).toUpperCase()}
-            </Text>
-          </View>
-        )}
-
-        <View style={styles.articleBody}>
-          <View style={styles.badges}>
-            <Badge label={post.discipline.label} variant="teal" />
-            {post.series ? <Badge label={post.series} variant="slate" /> : null}
-            {post.semester ? (
-              <Badge label={`${post.semester} semestre`} variant="slate" />
-            ) : null}
-          </View>
-
-          <Text style={styles.title}>{post.title}</Text>
-          <Text style={styles.meta}>
-            <Text style={styles.metaStrong}>{formatProfessorName(post.author.name)}</Text>
-            {" · "}
-            {formatDate(post.createDate)}
-            {" · "}
-            {estimateReadingTime(post.summary, post.content)} min de leitura
-          </Text>
-
-          <Text style={styles.summary}>{post.summary}</Text>
-
-          <View style={styles.paragraphs}>
-            {splitParagraphs(post.content).map((paragraph, index) => (
-              <Text key={`${post._id}-paragraph-${index}`} style={styles.paragraph}>
-                {paragraph}
+        <View style={styles.article}>
+          {post.imageUrl ? (
+            <Image
+              accessibilityLabel={post.title}
+              resizeMode="cover"
+              source={{ uri: post.imageUrl }}
+              style={styles.cover}
+            />
+          ) : (
+            <View style={styles.fallbackCover}>
+              <Text style={styles.fallbackText}>
+                {post.discipline.label.slice(0, 3).toUpperCase()}
               </Text>
-            ))}
+            </View>
+          )}
+
+          <View style={styles.articleBody}>
+            <View style={styles.badges}>
+              <Badge label={post.discipline.label} variant="teal" />
+              {post.series ? (
+                <Badge label={post.series} variant="slate" />
+              ) : null}
+              {post.semester ? (
+                <Badge label={`${post.semester} semestre`} variant="slate" />
+              ) : null}
+            </View>
+
+            <Text style={styles.title}>{post.title}</Text>
+            <Text style={styles.meta}>
+              <Text style={styles.metaStrong}>
+                {formatProfessorName(post.author.name)}
+              </Text>
+              {" · "}
+              {formatDate(post.createDate)}
+              {" · "}
+              {estimateReadingTime(post.summary, post.content)} min de leitura
+            </Text>
+
+            <Text style={styles.summary}>{post.summary}</Text>
+
+            <View style={styles.paragraphs}>
+              {splitParagraphs(post.content).map((paragraph, index) => (
+                <Text
+                  key={`${post._id}-paragraph-${index}`}
+                  style={styles.paragraph}
+                >
+                  {paragraph}
+                </Text>
+              ))}
+            </View>
           </View>
         </View>
-      </View>
 
-      {user?.role === "PROFESSOR" ? (
-        <View style={styles.actions}>
-          <Text style={commonStyles.subtitle}>Status atual: {post.status.label}</Text>
-          <ActionButton
-            label="Editar publicação"
-            onPress={() => router.push(`/teacher/posts/${post._id}/edit` as Href)}
-          />
-        </View>
-      ) : null}
-    </ScrollView>
+        {user?.role === "PROFESSOR" ? (
+          <View style={styles.actions}>
+            <Text style={commonStyles.subtitle}>
+              Status atual: {post.status.label}
+            </Text>
+            <ActionButton
+              label="Editar publicação"
+              onPress={() =>
+                router.push(`/teacher/posts/${post._id}/edit` as Href)
+              }
+            />
+          </View>
+        ) : null}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
-function Badge({ label, variant }: { label: string; variant: "teal" | "slate" }) {
+function Badge({
+  label,
+  variant,
+}: {
+  label: string;
+  variant: "teal" | "slate";
+}) {
   return (
     <View
-      style={[styles.badge, variant === "teal" ? styles.tealBadge : styles.slateBadge]}
+      style={[
+        styles.badge,
+        variant === "teal" ? styles.tealBadge : styles.slateBadge,
+      ]}
     >
       <Text
         style={[
